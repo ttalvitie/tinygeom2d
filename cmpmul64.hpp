@@ -57,7 +57,7 @@ inline int portableCmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
 
 // Equivalent to portableCmpMul64, but may use compiler- or platform-specific
 // optimizations.
-#if __SIZEOF_INT128__ == 16 // GCC and Clang on x86_64
+#if __SIZEOF_INT128__ == 16 // gcc, clang and icc on x86_64
     inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
         __int128 x = (__int128)a * (__int128)b;
         __int128 y = (__int128)c * (__int128)d;
