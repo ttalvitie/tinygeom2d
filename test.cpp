@@ -1,7 +1,9 @@
 #include <iostream>
 #include <random>
 
+#include "common.hpp"
 #include "cmpmul64.hpp"
+#include "geometry.hpp"
 
 using namespace tinygeom2d;
 
@@ -111,8 +113,116 @@ void test_cmpmul64_hpp() {
     }
 }
 
+Point randomPoint() {
+    std::uniform_int_distribution<int64_t> dist(MinCoord, MaxCoord);
+    return Point(dist(rng), dist(rng));
+}
+
+void test_geometry_hpp() {
+    // orientation: random inversion and rotation test
+    for(int i = 0; i < 100; ++i) {
+        Point a = randomPoint();
+        Point b = randomPoint();
+        Point c = randomPoint();
+        int o = orientation(a, b, c);
+        TEST(o >= -1 && o <= 1);
+        TEST(orientation(b, c, a) == o);
+        TEST(orientation(c, a, b) == o);
+        TEST(orientation(a, c, b) == -o);
+        TEST(orientation(c, b, a) == -o);
+        TEST(orientation(b, a, c) == -o);
+    }
+    
+    // orientation: random degenerate cases
+    for(int i = 0; i < 100; ++i) {
+        Point a = randomPoint();
+        Point b = randomPoint();
+        TEST(orientation(a, a, b) == 0);
+        TEST(orientation(a, b, a) == 0);
+        TEST(orientation(b, a, a) == 0);
+        TEST(orientation(a, a, a) == 0);
+    }
+    
+    // cmpX: random tests
+    for(int i = 0; i < 100; ++i) {
+        Point a = randomPoint();
+        Point b = randomPoint();
+        int o = cmpX(a, b);
+        TEST(o >= -1 && o <= 1);
+        TEST(cmpX(b, a) == -o);
+        if(a.x != b.x) {
+            TEST(o == (a.x > b.x) - (a.x < b.x));
+        }
+    }
+    
+    // cmpX: random degenerate cases
+    for(int i = 0; i < 100; ++i) {
+        Point a = randomPoint();
+        TEST(cmpX(a, a) == 0);
+    }
+    
+    // cmpX: total ordering for small coordinates
+    {
+        vector<Point> points;
+        for(int x = -10; x <= 10; ++x) {
+            for(int y = -10; y <= 10; ++y) {
+                points.emplace_back(x, y);
+            }
+        }
+        
+        sort(points.begin(), points.end(), [&](Point a, Point b) {
+            return cmpX(a, b) == -1;
+        });
+        
+        for(int i = 0; i < (int)points.size(); ++i) {
+            for(int j = 0; j < (int)points.size(); ++j) {
+                TEST(cmpX(points[i], points[j]) == (i > j) - (i < j));
+            }
+        }
+    }
+    
+    // cmpY: random degenerate cases
+    for(int i = 0; i < 100; ++i) {
+        Point a = randomPoint();
+        TEST(cmpY(a, a) == 0);
+    }
+
+    // cmpY: random tests
+    for(int i = 0; i < 100; ++i) {
+        Point a = randomPoint();
+        Point b = randomPoint();
+        int o = cmpY(a, b);
+        TEST(o >= -1 && o <= 1);
+        TEST(cmpY(b, a) == -o);
+        if(a.y != b.y) {
+            TEST(o == (a.y > b.y) - (a.y < b.y));
+        }
+    }
+
+    // cmpY: total ordering for small coordinates
+    {
+        vector<Point> points;
+        for(int x = -10; x <= 10; ++x) {
+            for(int y = -10; y <= 10; ++y) {
+                points.emplace_back(x, y);
+            }
+        }
+        
+        sort(points.begin(), points.end(), [&](Point a, Point b) {
+            return cmpY(a, b) == -1;
+        });
+        
+        for(int i = 0; i < (int)points.size(); ++i) {
+            for(int j = 0; j < (int)points.size(); ++j) {
+                TEST(cmpY(points[i], points[j]) == (i > j) - (i < j));
+            }
+        }
+    }
+}
+
 int main() {
     test_cmpmul64_hpp();
+    test_geometry_hpp();
     
     std::cerr << "All tests completed successfully\n";
     
