@@ -62,7 +62,7 @@ struct Point {
 // Returns the orientation of the triangle (0, b - a, d - c): 1 if it is
 // counterclockwise oriented, -1 if it is clockwise oriented and 0 if the
 // points are collinear (or equivalently, two of them are equal).
-int orientation(Point a, Point b, Point c, Point d) {
+inline int orientation(Point a, Point b, Point c, Point d) {
     int res = cmpMul64(b.x - a.x, d.y - c.y, b.y - a.y, d.x - c.x);
     if(res) {
         return res;
@@ -120,13 +120,13 @@ int orientation(Point a, Point b, Point c, Point d) {
 // Returns the orientation of the triangle (a, b, c): 1 if it is
 // counterclockwise oriented, -1 if it is clockwise oriented and 0 if the
 // points are collinear (or equivalently, two of them are equal).
-int orientation(Point a, Point b, Point c) {
+inline int orientation(Point a, Point b, Point c) {
     return orientation(a, b, a, c);
 }
 
 // Returns 1, 0 or -1 if the x-coordinate of a is greater than, equal to or
 // less than the x-coordinate of b, respectively.
-int cmpX(Point a, Point b) {
+inline int cmpX(Point a, Point b) {
     if(a.x == b.x) {
         if(a.y == b.y) {
             return 0;
@@ -140,7 +140,7 @@ int cmpX(Point a, Point b) {
 
 // Returns 1, 0 or -1 if the y-coordinate of a is greater than, equal to or
 // less than the y-coordinate of b, respectively.
-int cmpY(Point a, Point b) {
+inline int cmpY(Point a, Point b) {
     if(a.y == b.y) {
         if(a.x == b.x) {
             return 0;
@@ -159,7 +159,7 @@ int cmpY(Point a, Point b) {
 //   180 degrees leftwards/negative x
 //   270 degrees downwards/negative y.
 // The result when a = b or c = d is undefined.
-int cmpAngle(Point a, Point b, Point c, Point d) {
+inline int cmpAngle(Point a, Point b, Point c, Point d) {
     int c1 = cmpY(a, b);
     int c2 = cmpY(c, d);
     
