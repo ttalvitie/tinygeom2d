@@ -45,20 +45,25 @@ struct Point {
 // original positions, but it can be proven that no three points are collinear
 // anymore, and all the x- and y-coordinates are different.
 
-// Returns the orientation of the triangle (a, b, c): 1 if it is
+// Returns the orientation of the triangle (0, b - a, d - c): 1 if it is
 // counterclockwise oriented, -1 if it is clockwise oriented and 0 if the
 // points are collinear (or equivalently, two of them are equal).
-int orientation(Point a, Point b, Point c) {
-    int res = cmpMul64(b.x - a.x, c.y - a.y, b.y - a.y, c.x - a.x);
+int orientation(Point a, Point b, Point c, Point d) {
+    int res = cmpMul64(b.x - a.x, d.y - c.y, b.y - a.y, d.x - c.x);
     if(res) {
         return res;
     }
     
-    // Eliminate the case where we have two equal points.
+    auto equal = [](Point u, Point v) {
+        return u.x == v.x && u.y == v.y;
+    };
+    
+    // Eliminate 0-cases.
     if(
-        (a.x == b.x && a.y == b.y) ||
-        (a.x == c.x && a.y == c.y) ||
-        (b.x == c.x && b.y == c.y)
+        equal(a, b) ||
+        equal(c, d) ||
+        (equal(a, c) && equal(b, d)) ||
+        (equal(a, d) && equal(b, c))
     ) {
         return 0;
     }
@@ -67,22 +72,42 @@ int orientation(Point a, Point b, Point c) {
         return make_pair(u.x, u.y) < make_pair(v.x, v.y);
     };
     
-    // Rotate points such that B is the minimum in I-order.
-    if(lessInI(a, c)) {
-        if(lessInI(a, b)) {
-            tie(a, b, c) = make_tuple(c, a, b);
-        }
-    } else {
-        if(lessInI(c, b)) {
-            tie(a, b, c) = make_tuple(b, c, a);
-        }
+    // Normalize to the case such that b is the minimum point in I-order.
+    int multiplier = 1;
+    
+    if(lessInI(a, b)) {
+        swap(a, b);
+        multiplier = -multiplier;
+    }
+    if(lessInI(c, d)) {
+        swap(c, d);
+        multiplier = -multiplier;
+    }
+    if(lessInI(d, b)) {
+        swap(a, c);
+        swap(b, d);
+        multiplier = -multiplier;
     }
     
-    if(c.y != a.y) {
-        return c.y > a.y ? 1 : -1;
-    } else {
-        return c.x < a.x ? 1 : -1;
+    // Make sure that b is not in {a, c, d}.
+    if(equal(b, d)) {
+        // We are computing orientation(b, a, c), which is the same as
+        // orientation(a, b, c, a).
+        d = a;
     }
+    
+    if(d.y != c.y) {
+        return d.y > c.y ? multiplier : -multiplier;
+    } else {
+        return d.x < c.x ? multiplier : -multiplier;
+    }
+}
+
+// Returns the orientation of the triangle (a, b, c): 1 if it is
+// counterclockwise oriented, -1 if it is clockwise oriented and 0 if the
+// points are collinear (or equivalently, two of them are equal).
+int orientation(Point a, Point b, Point c) {
+    return orientation(a, b, a, c);
 }
 
 // Returns 1, 0 or -1 if the x-coordinate of a is greater than, equal to or
@@ -110,6 +135,24 @@ int cmpY(Point a, Point b) {
         }
     } else {
         return a.y > b.y ? 1 : -1;
+    }
+}
+
+// Returns 1, 0 or -1 if b - a has angle greater than, equal to or less than
+// d - c, respectively when angles are defined as standard directional angles:
+//   0 degrees rightwards/positive x
+//   90 degrees upwards/positive y
+//   180 degrees leftwards/negative x
+//   270 degrees downwards/negative y.
+// The result when a = b or c = d is undefined.
+int cmpAngle(Point a, Point b, Point c, Point d) {
+    int c1 = cmpY(a, b);
+    int c2 = cmpY(c, d);
+    
+    if(c1 == c2) {
+        return orientation(c, d, a, b);
+    } else {
+        return c1 > c2 ? 1 : -1;
     }
 }
 
