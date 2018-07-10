@@ -15,7 +15,21 @@ const int64_t MaxCoord = ((int64_t)1 << 62) - 1;
 // y-coordinates (for example, x is oriented rightwards and y is oriented
 // upwards).
 struct Point {
-    Point(int64_t x, int64_t y) : x(x), y(y) { }
+    // Construct point (0, 0).
+    Point() : x(0), y(0) { }
+    
+    // Construct point (x, y). Throws std::out_of_range if one of the
+    // coordinates are outside range [MinCoord, MaxCoord].
+    Point(int64_t x, int64_t y) : x(x), y(y) {
+        if(
+            x < MinCoord ||
+            x > MaxCoord ||
+            y < MinCoord ||
+            y > MaxCoord
+        ) {
+            throw std::out_of_range("tinygeom2d::Point coordinate out of range");
+        }
+    }
     
     int64_t x;
     int64_t y;
