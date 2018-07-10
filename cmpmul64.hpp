@@ -2,6 +2,11 @@
 
 #include "common.hpp"
 
+#if defined(_MSC_VER) && defined(_M_X64) // Needed for MSVC cmpMul64
+#   include <intrin.h>
+#   pragma intrinsic(_mul128)
+#endif
+
 namespace tinygeom2d {
 
 // Portable implementation of multiplication of 64-bit unsigned integers.
@@ -64,10 +69,20 @@ inline int portableCmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
         
         if(x == y) {
             return 0;
-        } else if(x > y) {
-            return 1;
         } else {
-            return -1;
+            return x > y ? 1 : -1;
+        }
+    }
+#elif defined(_MSC_VER) && defined(_M_X64) // MSVC on x86_64
+    inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
+        pair<int64_t, uint64_t> x, y;
+        x.second = _mul128(a, b, &x.first);
+        y.second = _mul128(c, d, &y.first);
+        
+        if(x == y) {
+            return 0;
+        } else {
+            return x > y ? 1 : -1;
         }
     }
 #else
