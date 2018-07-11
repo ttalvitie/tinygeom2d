@@ -273,6 +273,19 @@ void test_geometry_hpp() {
         }
     }
     
+    // cmpAngle: check that sign is correct
+    {
+        Point o;
+        Point a(1, 1);
+        Point b(-1, 1);
+        Point c(-1, -1);
+        Point d(1, -1);
+        TEST(cmpAngle(o, a, o, b) == -1);
+        TEST(cmpAngle(o, b, o, c) == -1);
+        TEST(cmpAngle(o, c, o, d) == -1);
+        TEST(cmpAngle(o, d, o, a) == 1);
+    }
+    
     // cmpAngle: total ordering for small coordinates
     {
         Point origin(0, 0);
