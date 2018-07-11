@@ -46,7 +46,7 @@ inline int portableCmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
     y.first -= c < 0 ? (uint64_t)d : 0;
     y.first -= d < 0 ? (uint64_t)c : 0;
     
-    // Flip top bits so we can use signed comparison
+    // Flip top bits so we can use unsigned comparison for signed comparison
     const uint64_t top = (uint64_t)1 << 63;
     x.first ^= top;
     y.first ^= top;
