@@ -155,7 +155,7 @@ inline int cmpAngle(Point a, Point b, Point c, Point d) {
 
 }
 
-// Make it possible to use unordered_set<Point>.
+// Make it possible to use std::unordered_set<Point>.
 namespace std {
 template <>
 struct hash<tinygeom2d::Point> {

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <random>
+#include <unordered_set>
 
 #include "common.hpp"
 #include "cmpmul64.hpp"
@@ -256,6 +257,18 @@ void test_geometry_hpp() {
                 TEST(cmpAngle(origin, points[i], origin, points[j]) == (i > j) - (i < j));
             }
         }
+    }
+    
+    // Hash and comparison operators of Point
+    {
+        std::unordered_set<Point> x;
+        x.emplace(5, 6);
+        x.emplace(-5, 6);
+        x.emplace(1, 3);
+        x.emplace(1, 3);
+        TEST(x.size() == 3);
+        TEST(x.count(Point(5, 6)));
+        TEST(!x.count(Point(6, 5)));
     }
 }
 
