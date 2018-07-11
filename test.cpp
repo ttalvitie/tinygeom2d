@@ -223,20 +223,20 @@ void test_geometry_hpp() {
         }
     }
     
-    // cmpAngle: check that sign is correct
+    // angleLT: check that sign is correct
     {
         Point o;
         Point a(1, 1);
         Point b(-1, 1);
         Point c(-1, -1);
         Point d(1, -1);
-        TEST(cmpAngle(o, a, o, b) == -1);
-        TEST(cmpAngle(o, b, o, c) == -1);
-        TEST(cmpAngle(o, c, o, d) == -1);
-        TEST(cmpAngle(o, d, o, a) == 1);
+        TEST(angleLT(o, a, o, b));
+        TEST(angleLT(o, b, o, c));
+        TEST(angleLT(o, c, o, d));
+        TEST(!angleLT(o, d, o, a));
     }
     
-    // cmpAngle: total ordering for small coordinates
+    // angleLT: total ordering for small coordinates
     {
         Point origin(0, 0);
         
@@ -250,12 +250,12 @@ void test_geometry_hpp() {
         }
         
         sort(points.begin(), points.end(), [&](Point a, Point b) {
-            return cmpAngle(origin, a, origin, b) == -1;
+            return angleLT(origin, a, origin, b);
         });
         
         for(int i = 0; i < (int)points.size(); ++i) {
             for(int j = 0; j < (int)points.size(); ++j) {
-                TEST(cmpAngle(origin, points[i], origin, points[j]) == (i > j) - (i < j));
+                TEST(angleLT(origin, points[i], origin, points[j]) == (i < j));
             }
         }
     }

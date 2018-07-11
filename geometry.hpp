@@ -138,21 +138,21 @@ inline int cmpY(Point a, Point b) {
     }
 }
 
-// Returns 1, 0 or -1 if b - a has angle greater than, equal to or less than
-// d - c, respectively when angles are defined as standard directional angles:
+// Returns true if b - a has angle strictly less than d - c, when angles are
+// defined as standard directional angles:
 //   0 degrees rightwards/positive x
 //   90 degrees upwards/positive y
 //   180 degrees leftwards/negative x
 //   270 degrees downwards/negative y.
-// The result when a = b or c = d is undefined.
-inline int cmpAngle(Point a, Point b, Point c, Point d) {
+// The result is undefined if a = b or c = d.
+inline bool angleLT(Point a, Point b, Point c, Point d) {
     int c1 = cmpY(a, b);
     int c2 = cmpY(c, d);
     
     if(c1 == c2) {
-        return orientation(c, d, a, b);
+        return orientation(c, d, a, b) == -1;
     } else {
-        return c1 > c2 ? 1 : -1;
+        return c1 < c2;
     }
 }
 
