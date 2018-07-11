@@ -35,16 +35,24 @@ struct Point {
     int64_t y;
 };
 
+inline bool operator==(const Point& a, const Point& b) {
+    return a.x == b.x && a.y == b.y;
+}
+inline bool operator!=(const Point& a, const Point& b) {
+    return a.x != b.x || a.y != b.y;
+}
+
 // NOTE: The library outside this file does not use the coordinates directly,
 // but only using the functions below. This means that you can switch to a
 // different point type just by reimplementing the functions in this file.
 
 // NOTE: To simplify the implementation, the geometric operations below use
-// a symbolic perturbation where the locations of all points are slightly
-// adjusted such that the following non-degeneracy properties hold:
-//   - No three distinct points are collinear
-//   - No two distinct points have matching x-coordinates
-//   - No two distinct points have matching y-coordinates
+// a symbolic perturbation where the locations of all points are thought to be
+// slightly adjusted such that the following non-degeneracy properties hold:
+//   - For all points a, b, c, d such that a != b, c != d, (a, b) != (c, d)
+//     and (a, b) != (d, c) it holds that the lines ab and cd are not parallel.
+//     (As a special case, no three distinct points are collinear.)
+//   - No two distinct points have matching y-coordinates.
 // This adjustment is only symbolic in the sense that it only affects these
 // degenerate cases. Any reimplementation of this file must also have these
 // properties, and the results of the operations must be consistent with each
@@ -68,16 +76,12 @@ inline int orientation(Point a, Point b, Point c, Point d) {
         return res;
     }
     
-    auto equal = [](Point u, Point v) {
-        return u.x == v.x && u.y == v.y;
-    };
-    
     // Eliminate 0-cases.
     if(
-        equal(a, b) ||
-        equal(c, d) ||
-        (equal(a, c) && equal(b, d)) ||
-        (equal(a, d) && equal(b, c))
+        a == b ||
+        c == d ||
+        (a == c && b == d) ||
+        (a == d && b == c)
     ) {
         return 0;
     }
@@ -104,7 +108,7 @@ inline int orientation(Point a, Point b, Point c, Point d) {
     }
     
     // Make sure that b is not in {a, c, d}.
-    if(equal(b, d)) {
+    if(b == d) {
         // We are computing orientation(b, a, c), which is the same as
         // orientation(a, b, c, a).
         d = a;
@@ -156,4 +160,25 @@ inline int cmpAngle(Point a, Point b, Point c, Point d) {
     }
 }
 
+}
+
+// Make it possible to use unordered_set<Point>.
+namespace std {
+template <>
+struct hash<tinygeom2d::Point> {
+    size_t operator()(const tinygeom2d::Point& p) const {
+        uint64_t hash = 0;
+        auto add = [&](uint64_t elem) {
+            const uint64_t m = UINT64_C(0xc6a4a7935bd1e995);
+            elem *= m;
+            elem ^= elem >> 47;
+            elem *= m;
+            hash ^= elem;
+            hash *= m;
+        };
+        add(p.x);
+        add(p.y);
+        return (size_t)hash;
+    }
+};
 }
