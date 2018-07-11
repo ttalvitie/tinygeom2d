@@ -121,9 +121,8 @@ Point randomPoint() {
 void test_geometry_hpp() {
     // orientation: check that sign is correct
     TEST(orientation({0, 0}, {1, 0}, {0, 0}, {0, 1}) == 1);
-    TEST(orientation({0, 0}, {1, 0}, {0, 1}) == 1);
     
-    // orientation(a, b, c, d): random inversion and rotation test
+    // orientation: random inversion and rotation test
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
         Point b = randomPoint();
@@ -140,7 +139,7 @@ void test_geometry_hpp() {
         TEST(orientation(d, c, b, a) == -o);
     }
     
-    // orientation(a, b, c, d): random degenerate cases
+    // orientation: random degenerate cases
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
         Point b = randomPoint();
@@ -151,21 +150,8 @@ void test_geometry_hpp() {
         TEST(orientation(a, b, b, a) == 0);
     }
     
-    // orientation(a, b, c): random inversion and rotation test
-    for(int i = 0; i < 100; ++i) {
-        Point a = randomPoint();
-        Point b = randomPoint();
-        Point c = randomPoint();
-        int o = orientation(a, b, c);
-        TEST(o >= -1 && o <= 1);
-        TEST(orientation(b, c, a) == o);
-        TEST(orientation(c, a, b) == o);
-        TEST(orientation(a, c, b) == -o);
-        TEST(orientation(c, b, a) == -o);
-        TEST(orientation(b, a, c) == -o);
-    }
-    
-    // orientation(a, b, c): inversion and rotation test in small coordinates
+    // orientation: inversion and rotation test in small coordinates for
+    // three points
     {
         for(int bx = -5; bx <= 5; ++bx) {
         for(int by = -5; by <= 5; ++by) {
@@ -174,27 +160,27 @@ void test_geometry_hpp() {
             Point a(0, 0);
             Point b(bx, by);
             Point c(cx, cy);
-            int o = orientation(a, b, c);
+            int o = orientation(a, b, a, c);
             TEST(o >= -1 && o <= 1);
-            TEST(orientation(b, c, a) == o);
-            TEST(orientation(c, a, b) == o);
-            TEST(orientation(a, c, b) == -o);
-            TEST(orientation(c, b, a) == -o);
-            TEST(orientation(b, a, c) == -o);
+            TEST(orientation(b, c, b, a) == o);
+            TEST(orientation(c, a, c, b) == o);
+            TEST(orientation(a, c, a, b) == -o);
+            TEST(orientation(c, b, c, a) == -o);
+            TEST(orientation(b, a, b, c) == -o);
         }
         }
         }
         }
     }
     
-    // orientation(a, b, c): random degenerate cases
+    // orientation(a, b, c): random three-point degenerate cases
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
         Point b = randomPoint();
-        TEST(orientation(a, a, b) == 0);
-        TEST(orientation(a, b, a) == 0);
-        TEST(orientation(b, a, a) == 0);
-        TEST(orientation(a, a, a) == 0);
+        TEST(orientation(a, a, a, b) == 0);
+        TEST(orientation(a, b, a, a) == 0);
+        TEST(orientation(b, a, b, a) == 0);
+        TEST(orientation(a, a, a, a) == 0);
     }
     
     // cmpY: random degenerate cases

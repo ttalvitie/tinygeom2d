@@ -64,8 +64,8 @@ inline bool operator!=(const Point& a, const Point& b) {
 // is perturbed to location (x + t^(2 * I(x, y) + 1), y + t^(2 * I(x, y) + 2)),
 // and the result of each geometric operation is obtained at the limit t -> 0
 // from the positive side. In the end, all the points converge back to their
-// original positions, but it can be proven that no three points are collinear
-// anymore, and all the x- and y-coordinates are different.
+// original positions, but it can be proven that the non-degeneracy properties
+// hold.
 
 // Returns the orientation of the triangle (0, b - a, d - c): 1 if it is
 // counterclockwise oriented, -1 if it is clockwise oriented and 0 if the
@@ -119,13 +119,6 @@ inline int orientation(Point a, Point b, Point c, Point d) {
     } else {
         return d.x < c.x ? multiplier : -multiplier;
     }
-}
-
-// Returns the orientation of the triangle (a, b, c): 1 if it is
-// counterclockwise oriented, -1 if it is clockwise oriented and 0 if the
-// points are collinear (or equivalently, two of them are equal).
-inline int orientation(Point a, Point b, Point c) {
-    return orientation(a, b, a, c);
 }
 
 // Returns 1, 0 or -1 if the y-coordinate of a is greater than, equal to or
