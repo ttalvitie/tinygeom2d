@@ -124,20 +124,6 @@ inline int orientation(Point a, Point b, Point c) {
     return orientation(a, b, a, c);
 }
 
-// Returns 1, 0 or -1 if the x-coordinate of a is greater than, equal to or
-// less than the x-coordinate of b, respectively.
-inline int cmpX(Point a, Point b) {
-    if(a.x == b.x) {
-        if(a.y == b.y) {
-            return 0;
-        } else {
-            return a.y < b.y ? 1 : -1;
-        }
-    } else {
-        return a.x > b.x ? 1 : -1;
-    }
-}
-
 // Returns 1, 0 or -1 if the y-coordinate of a is greater than, equal to or
 // less than the y-coordinate of b, respectively.
 inline int cmpY(Point a, Point b) {
