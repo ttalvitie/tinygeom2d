@@ -1,6 +1,7 @@
 #pragma once
 
-#include "common.hpp"
+#include <cstdint>
+#include <utility>
 
 #if defined(_MSC_VER) && defined(_M_X64) // Needed for MSVC cmpMul64
 #   include <intrin.h>
@@ -8,6 +9,8 @@
 #endif
 
 namespace tinygeom2d {
+
+using std::int64_t;
 
 // Portable implementation of multiplication of 64-bit unsigned integers.
 // The result is the std::pair (high bits, low bits).

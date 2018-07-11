@@ -1,8 +1,9 @@
+#include <algorithm>
 #include <iostream>
 #include <random>
 #include <unordered_set>
+#include <vector>
 
-#include "common.hpp"
 #include "int64.hpp"
 #include "geometry.hpp"
 

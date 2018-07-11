@@ -1,6 +1,8 @@
 #pragma once
 
-#include "common.hpp"
+#include <stdexcept>
+#include <utility>
+
 #include "int64.hpp"
 
 namespace tinygeom2d {
