@@ -128,13 +128,9 @@ inline int orientation(Point a, Point b, Point c, Point d) {
 // less than the y-coordinate of b, respectively.
 inline bool yCoordLT(Point a, Point b) {
     if(a.y == b.y) {
-        if(a.x == b.x) {
-            return false;
-        } else {
-            return a.x < b.x ? false : true;
-        }
+        return a.x > b.x;
     } else {
-        return a.y > b.y ? false : true;
+        return a.y < b.y;
     }
 }
 
