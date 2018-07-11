@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.hpp"
-#include "cmpmul64.hpp"
+#include "int64.hpp"
 
 namespace tinygeom2d {
 

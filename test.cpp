@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 #include "common.hpp"
-#include "cmpmul64.hpp"
+#include "int64.hpp"
 #include "geometry.hpp"
 
 using namespace tinygeom2d;
@@ -19,7 +19,7 @@ void test(bool ok, const char* str, const char* file, int line) {
 
 #define TEST(check) test((check), #check, __FILE__, __LINE__) 
 
-void test_cmpmul64_hpp() {
+void test_int64_hpp() {
     // portableMulU64: random tests generated using Python 3:
     // from random import randint
     // x = randint(0, 2**64-1)
@@ -273,7 +273,7 @@ void test_geometry_hpp() {
 }
 
 int main() {
-    test_cmpmul64_hpp();
+    test_int64_hpp();
     test_geometry_hpp();
     
     std::cerr << "All tests completed successfully\n";
