@@ -10,13 +10,5 @@
 namespace tinygeom2d {
 
 using std::int64_t;
-using std::make_pair;
-using std::make_tuple;
-using std::pair;
-using std::sort;
-using std::swap;
-using std::tie;
-using std::tuple;
-using std::vector;
 
 }

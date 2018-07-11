@@ -87,23 +87,23 @@ inline int orientation(Point a, Point b, Point c, Point d) {
     }
     
     auto lessInI = [](Point u, Point v) {
-        return make_pair(u.x, u.y) < make_pair(v.x, v.y);
+        return std::make_pair(u.x, u.y) < std::make_pair(v.x, v.y);
     };
     
     // Normalize to the case such that b is the minimum point in I-order.
     int multiplier = 1;
     
     if(lessInI(a, b)) {
-        swap(a, b);
+        std::swap(a, b);
         multiplier = -multiplier;
     }
     if(lessInI(c, d)) {
-        swap(c, d);
+        std::swap(c, d);
         multiplier = -multiplier;
     }
     if(lessInI(d, b)) {
-        swap(a, c);
-        swap(b, d);
+        std::swap(a, c);
+        std::swap(b, d);
         multiplier = -multiplier;
     }
     

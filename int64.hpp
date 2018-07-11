@@ -10,8 +10,8 @@
 namespace tinygeom2d {
 
 // Portable implementation of multiplication of 64-bit unsigned integers.
-// The result is the pair (high bits, low bits).
-inline pair<uint64_t, uint64_t> portableMulU64(uint64_t x, uint64_t y) {
+// The result is the std::pair (high bits, low bits).
+inline std::pair<uint64_t, uint64_t> portableMulU64(uint64_t x, uint64_t y) {
     const uint64_t low = ((uint64_t)1 << 32) - (uint64_t)1;
     
     uint64_t x0 = x & low;
@@ -37,8 +37,8 @@ inline pair<uint64_t, uint64_t> portableMulU64(uint64_t x, uint64_t y) {
 // respectively. This is the portable implementation - the function cmpMul64
 // may be faster.
 inline int portableCmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
-    pair<uint64_t, uint64_t> x = portableMulU64((uint64_t)a, (uint64_t)b);
-    pair<uint64_t, uint64_t> y = portableMulU64((uint64_t)c, (uint64_t)d);
+    std::pair<uint64_t, uint64_t> x = portableMulU64((uint64_t)a, (uint64_t)b);
+    std::pair<uint64_t, uint64_t> y = portableMulU64((uint64_t)c, (uint64_t)d);
     
     // Transform to signed multiplication
     x.first -= a < 0 ? (uint64_t)b : 0;
@@ -75,7 +75,7 @@ inline int portableCmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
     }
 #elif defined(_MSC_VER) && defined(_M_X64) // MSVC on x86_64
     inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
-        pair<int64_t, uint64_t> x, y;
+        std::pair<int64_t, uint64_t> x, y;
         x.second = _mul128(a, b, &x.first);
         y.second = _mul128(c, d, &y.first);
         
