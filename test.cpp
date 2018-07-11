@@ -121,68 +121,75 @@ Point randomPoint() {
 }
 
 void test_geometry_hpp() {
-    // orientation: check that sign is correct
-    TEST(orientation({0, 0}, {1, 0}, {0, 0}, {0, 1}) == 1);
+    // isCCW: check that sign is correct
+    TEST(isCCW({0, 0}, {1, 0}, {0, 0}, {0, 1}));
     
-    // orientation: random inversion and rotation test
+    // isCCW: random inversion and rotation test
+    for(int i = 0; i < 100; ++i) {
+        Point a, b, c, d;
+        while(a == b || a == c || a == d || b == c || b == d || c == d) {
+            a = randomPoint();
+            b = randomPoint();
+            c = randomPoint();
+            d = randomPoint();
+        }
+        
+        bool o = isCCW(a, b, c, d);
+        TEST(isCCW(b, a, c, d) == !o);
+        TEST(isCCW(a, b, d, c) == !o);
+        TEST(isCCW(b, a, d, c) == o);
+        TEST(isCCW(c, d, a, b) == !o);
+        TEST(isCCW(d, c, a, b) == o);
+        TEST(isCCW(c, d, b, a) == o);
+        TEST(isCCW(d, c, b, a) == !o);
+    }
+    
+    // isCCW: random degenerate cases
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
         Point b = randomPoint();
         Point c = randomPoint();
-        Point d = randomPoint();
-        int o = orientation(a, b, c, d);
-        TEST(o >= -1 && o <= 1);
-        TEST(orientation(b, a, c, d) == -o);
-        TEST(orientation(a, b, d, c) == -o);
-        TEST(orientation(b, a, d, c) == o);
-        TEST(orientation(c, d, a, b) == -o);
-        TEST(orientation(d, c, a, b) == o);
-        TEST(orientation(c, d, b, a) == o);
-        TEST(orientation(d, c, b, a) == -o);
+        
+        TEST(!isCCW(a, a, b, c));
+        TEST(!isCCW(b, c, a, a));
+        TEST(!isCCW(a, b, a, b));
+        TEST(!isCCW(a, b, b, a));
     }
     
-    // orientation: random degenerate cases
-    for(int i = 0; i < 100; ++i) {
-        Point a = randomPoint();
-        Point b = randomPoint();
-        Point c = randomPoint();
-        TEST(orientation(a, a, b, c) == 0);
-        TEST(orientation(b, c, a, a) == 0);
-        TEST(orientation(a, b, a, b) == 0);
-        TEST(orientation(a, b, b, a) == 0);
-    }
-    
-    // orientation: inversion and rotation test in small coordinates for
+    // isCCW: inversion and rotation test in small coordinates for
     // three points
     {
-        for(int bx = -5; bx <= 5; ++bx) {
-        for(int by = -5; by <= 5; ++by) {
-        for(int cx = -5; cx <= 5; ++cx) {
-        for(int cy = -5; cy <= 5; ++cy) {
+        for(int bx = -10; bx <= 10; ++bx) {
+        for(int by = -10; by <= 10; ++by) {
+        for(int cx = -10; cx <= 10; ++cx) {
+        for(int cy = -10; cy <= 10; ++cy) {
             Point a(0, 0);
             Point b(bx, by);
             Point c(cx, cy);
-            int o = orientation(a, b, a, c);
-            TEST(o >= -1 && o <= 1);
-            TEST(orientation(b, c, b, a) == o);
-            TEST(orientation(c, a, c, b) == o);
-            TEST(orientation(a, c, a, b) == -o);
-            TEST(orientation(c, b, c, a) == -o);
-            TEST(orientation(b, a, b, c) == -o);
+            if(a == b || a == c || b == c) {
+                continue;
+            }
+            
+            bool o = isCCW(a, b, a, c);
+            TEST(isCCW(b, c, b, a) == o);
+            TEST(isCCW(c, a, c, b) == o);
+            TEST(isCCW(a, c, a, b) == !o);
+            TEST(isCCW(c, b, c, a) == !o);
+            TEST(isCCW(b, a, b, c) == !o);
         }
         }
         }
         }
     }
     
-    // orientation(a, b, c): random three-point degenerate cases
+    // isCCW: random three-point degenerate cases
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
         Point b = randomPoint();
-        TEST(orientation(a, a, a, b) == 0);
-        TEST(orientation(a, b, a, a) == 0);
-        TEST(orientation(b, a, b, a) == 0);
-        TEST(orientation(a, a, a, a) == 0);
+        TEST(!isCCW(a, a, a, b));
+        TEST(!isCCW(a, b, a, a));
+        TEST(!isCCW(b, a, b, a));
+        TEST(!isCCW(a, a, a, a));
     }
     
     // yCoordLT: random degenerate cases

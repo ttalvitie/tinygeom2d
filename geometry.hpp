@@ -70,13 +70,12 @@ inline bool operator!=(const Point& a, const Point& b) {
 // original positions, but it can be proven that the non-degeneracy properties
 // hold.
 
-// Returns the orientation of the triangle (0, b - a, d - c): 1 if it is
-// counterclockwise oriented, -1 if it is clockwise oriented and 0 if the
-// points are collinear (or equivalently, two of them are equal).
-inline int orientation(Point a, Point b, Point c, Point d) {
+// Returns true if the triangle (0, b - a, d - c) is strictly counterclockwise
+// oriented (not collinear).
+inline bool isCCW(Point a, Point b, Point c, Point d) {
     int res = cmpMul64(b.x - a.x, d.y - c.y, b.y - a.y, d.x - c.x);
     if(res) {
-        return res;
+        return res == 1;
     }
     
     // Eliminate 0-cases.
@@ -86,7 +85,7 @@ inline int orientation(Point a, Point b, Point c, Point d) {
         (a == c && b == d) ||
         (a == d && b == c)
     ) {
-        return 0;
+        return false;
     }
     
     auto lessInI = [](Point u, Point v) {
@@ -112,15 +111,13 @@ inline int orientation(Point a, Point b, Point c, Point d) {
     
     // Make sure that b is not in {a, c, d}.
     if(b == d) {
-        // We are computing orientation(b, a, c), which is the same as
-        // orientation(a, b, c, a).
         d = a;
     }
     
     if(d.y != c.y) {
-        return d.y > c.y ? multiplier : -multiplier;
+        return (d.y > c.y ? multiplier : -multiplier) == 1;
     } else {
-        return d.x < c.x ? multiplier : -multiplier;
+        return (d.x < c.x ? multiplier : -multiplier) == 1;
     }
 }
 
@@ -146,7 +143,7 @@ inline bool angleLT(Point a, Point b, Point c, Point d) {
     int c2 = (int)yCoordLT(c, d);
     
     if(c1 == c2) {
-        return orientation(c, d, a, b) == -1;
+        return isCCW(a, b, c, d);
     } else {
         return c1 > c2;
     }
