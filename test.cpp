@@ -185,25 +185,24 @@ void test_geometry_hpp() {
         TEST(orientation(a, a, a, a) == 0);
     }
     
-    // cmpY: random degenerate cases
+    // yCoordLT: random degenerate cases
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
-        TEST(cmpY(a, a) == 0);
+        TEST(yCoordLT(a, a) == false);
     }
 
-    // cmpY: random tests
+    // yCoordLT: random tests
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
         Point b = randomPoint();
-        int o = cmpY(a, b);
-        TEST(o >= -1 && o <= 1);
-        TEST(cmpY(b, a) == -o);
+        bool o = yCoordLT(a, b);
+        TEST(a == b || yCoordLT(b, a) == !o);
         if(a.y != b.y) {
-            TEST(o == (a.y > b.y) - (a.y < b.y));
+            TEST(o == (a.y < b.y));
         }
     }
 
-    // cmpY: total ordering for small coordinates
+    // yCoordLT: total ordering for small coordinates
     {
         std::vector<Point> points;
         for(int x = -10; x <= 10; ++x) {
@@ -213,12 +212,12 @@ void test_geometry_hpp() {
         }
         
         sort(points.begin(), points.end(), [&](Point a, Point b) {
-            return cmpY(a, b) == -1;
+            return yCoordLT(a, b);
         });
         
         for(int i = 0; i < (int)points.size(); ++i) {
             for(int j = 0; j < (int)points.size(); ++j) {
-                TEST(cmpY(points[i], points[j]) == (i > j) - (i < j));
+                TEST(yCoordLT(points[i], points[j]) == (i < j));
             }
         }
     }

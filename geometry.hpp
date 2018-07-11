@@ -124,17 +124,17 @@ inline int orientation(Point a, Point b, Point c, Point d) {
     }
 }
 
-// Returns 1, 0 or -1 if the y-coordinate of a is greater than, equal to or
+// Returns true if the y-coordinate of a is strictly less than, equal to or
 // less than the y-coordinate of b, respectively.
-inline int cmpY(Point a, Point b) {
+inline bool yCoordLT(Point a, Point b) {
     if(a.y == b.y) {
         if(a.x == b.x) {
-            return 0;
+            return false;
         } else {
-            return a.x < b.x ? 1 : -1;
+            return a.x < b.x ? false : true;
         }
     } else {
-        return a.y > b.y ? 1 : -1;
+        return a.y > b.y ? false : true;
     }
 }
 
@@ -146,13 +146,13 @@ inline int cmpY(Point a, Point b) {
 //   270 degrees downwards/negative y.
 // The result is undefined if a = b or c = d.
 inline bool angleLT(Point a, Point b, Point c, Point d) {
-    int c1 = cmpY(a, b);
-    int c2 = cmpY(c, d);
+    int c1 = (int)yCoordLT(a, b);
+    int c2 = (int)yCoordLT(c, d);
     
     if(c1 == c2) {
         return orientation(c, d, a, b) == -1;
     } else {
-        return c1 < c2;
+        return c1 > c2;
     }
 }
 
