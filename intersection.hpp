@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <set>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -32,6 +33,7 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
     for(std::size_t i = 0; i < s; ++i) {
         if(segments[i].first == segments[i].second) {
             segments[i] = segments[--s];
+            --i;
         }
     }
     segments.resize(s);
@@ -55,21 +57,15 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
         return yCoordLT(a.second, b.second);
     });
     
-    // Left-to-right ordering for segments on a horizontal sweepline that
-    // throws an exception if an intersection is found
-    struct IntersectionFound { };
+    // Left-to-right ordering for segments with intersecting y-coordinate ranges
+    // in the horizontal line with y-coordinate at the larger of the bottom
+    // y-coordinates of the segments.
     auto orderX = [](Segment a, Segment b) {
         if(a == b) {
             return false;
         }
-        if(intersects(a.first, a.second, b.first, b.second)) {
-            throw IntersectionFound();
-        }
         if(a.first == b.first) {
             return isCCW(a.second, b.first, b.second);
-        }
-        if(a.second == b.second) {
-            return isCCW(a.first, b.first, b.second);
         }
         if(yCoordLT(a.first, b.first)) {
             return isCCW(a.second, a.first, b.first);
@@ -79,29 +75,70 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
     };
     
     // Run a sweepline from bottom to top, maintaining a ordered set of
-    // segments currently on the sweepline
-    try {
-        std::set<Segment, decltype(orderX)> sweeplineSegments(orderX);
-        std::size_t bottomPos = 0;
-        std::size_t topPos = 0;
-        while(bottomPos != permBottom.size()) {
-            // Next event might be a bottom or a top. Break ties in favor of
-            // tops so we remove before adding.
-            Segment nextBottom = permBottom[bottomPos];
-            Segment nextTop = permTop[topPos];
-            if(yCoordLT(nextBottom.first, nextTop.second)) {
-                if(!sweeplineSegments.insert(nextBottom).second) {
-                    // The segment was already there => intersection.
-                    throw IntersectionFound();
-                }
-                ++bottomPos;
-            } else {
-                sweeplineSegments.erase(nextTop);
-                ++topPos;
+    // segments currently on the sweepline. This way, intersecting segments
+    // can be caught as neighboring segments.
+    typedef std::set<Segment, decltype(orderX)> SweeplineSegmentSet;
+    SweeplineSegmentSet sweeplineSegments(orderX);
+    std::size_t bottomPos = 0;
+    std::size_t topPos = 0;
+    while(topPos != permTop.size()) {
+        // Next event might be a bottom or a top. Break ties in favor of
+        // tops so we remove before adding.
+        if(
+            bottomPos != permBottom.size() &&
+            yCoordLT(permBottom[bottomPos].first, permTop[topPos].second)
+        ) {
+            SweeplineSegmentSet::iterator pos;
+            bool inserted;
+            std::tie(pos, inserted) =
+                sweeplineSegments.insert(permBottom[bottomPos++]);
+            
+            // Duplicate segment means intersection
+            if(!inserted) {
+                return true;
             }
+            
+            // Check for intersection with neighbors
+            if(pos != sweeplineSegments.begin()) {
+                auto prev = pos;
+                --prev;
+                if(intersects(
+                    prev->first, prev->second,
+                    pos->first, pos->second
+                )) {
+                    return true;
+                }
+            }
+            
+            auto next = pos;
+            ++next;
+            if(
+                next != sweeplineSegments.end() &&
+                intersects(
+                    next->first, next->second,
+                    pos->first, pos->second
+                )
+            ) {
+                return true;
+            }
+        } else {
+            auto pos = sweeplineSegments.find(permTop[topPos++]);
+            
+            // Check for intersecting neighbors introduced by removal
+            if(pos != sweeplineSegments.begin()) {
+                auto prev = pos;
+                --prev;
+                auto next = pos;
+                ++next;
+                if(next != sweeplineSegments.end()) {
+                    if(intersects(prev->first, prev->second, next->first, next->second)) {
+                        return true;
+                    }
+                }
+            }
+            
+            sweeplineSegments.erase(pos);
         }
-    } catch(IntersectionFound) {
-        return true;
     }
     return false;
 }

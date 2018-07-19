@@ -370,9 +370,9 @@ void test_intersection_hpp() {
     // Random-generate non-intersecting configuration with brute-force use of
     // pairwise intersects, and verify the result of the vector version of
     // intersects.
-    for(int t = 0; t < 100; ++t) {
+    for(int t = 0; t < 1000; ++t) {
         std::vector<std::pair<Point, Point>> segments; 
-        const std::size_t segmentCount = 50;
+        const std::size_t segmentCount = 10;
         while(segments.size() != segmentCount) {
             Point a = randomPoint();
             Point b = randomPoint();
@@ -394,9 +394,9 @@ void test_intersection_hpp() {
     // Random-generate intersecting configuration with brute-force use of
     // pairwise intersects, and verify the result of the vector version of
     // intersects.
-    for(int t = 0; t < 100; ++t) {
+    for(int t = 0; t < 1000; ++t) {
         std::vector<std::pair<Point, Point>> segments;
-        const std::size_t segmentCount = 50;
+        const std::size_t segmentCount = 10;
         while(segments.size() != segmentCount) {
             Point a = randomPoint();
             Point b = randomPoint();
@@ -415,6 +415,11 @@ void test_intersection_hpp() {
             }
         }
         std::shuffle(segments.begin(), segments.end(), rng);
+        if(!intersects(segments)) {
+            for(auto seg : segments) {
+                std::cerr << seg.first << " - " << seg.second << "\n";
+            }
+        }
         TEST(intersects(segments));
     }
 }
