@@ -2,10 +2,12 @@
 #include <iostream>
 #include <random>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "int64.hpp"
 #include "geometry.hpp"
+#include "intersection.hpp"
 
 using namespace tinygeom2d;
 
@@ -192,6 +194,30 @@ void test_geometry_hpp() {
         TEST(!isCCW(a, a, a, a));
     }
     
+    // isCCW: three-parameter version comparison in random cases
+    for(int i = 0; i < 100; ++i) {
+        Point a = randomPoint();
+        Point b = randomPoint();
+        Point c = randomPoint();
+        TEST(isCCW(a, b, c) == isCCW(a, b, a, c));
+    }
+    
+    // isCCW: three-parameter version comparison in small triangles
+    {
+        for(int bx = -10; bx <= 10; ++bx) {
+        for(int by = -10; by <= 10; ++by) {
+        for(int cx = -10; cx <= 10; ++cx) {
+        for(int cy = -10; cy <= 10; ++cy) {
+            Point a(0, 0);
+            Point b(bx, by);
+            Point c(cx, cy);
+            TEST(isCCW(a, b, c) == isCCW(a, b, a, c));
+        }
+        }
+        }
+        }
+    }
+    
     // yCoordLT: random degenerate cases
     for(int i = 0; i < 100; ++i) {
         Point a = randomPoint();
@@ -279,9 +305,124 @@ void test_geometry_hpp() {
     }
 }
 
+void test_intersection_hpp() {
+    // Example intersections
+    {
+        TEST(intersects({-1, 0}, {1, 0}, {0, -1}, {0, 1}));
+        TEST(intersects({1, 0}, {-1, 0}, {0, -1}, {0, 1}));
+        TEST(intersects({0, 0}, {0, 1}, {0, 0}, {0, 1}));
+        TEST(intersects({0, 0}, {0, 1}, {0, 1}, {0, 0}));
+    }
+    
+    // Example non-intersections
+    {
+        TEST(!intersects({-1, 0}, {0, 0}, {1, 0}, {1, 1}));
+        TEST(!intersects({-2, 0}, {-1, 0}, {2, 0}, {1, 0}));
+        TEST(!intersects({-2, 0}, {-1, 0}, {1, 0}, {2, 0}));
+        TEST(!intersects({0, 0}, {0, -1}, {0, 0}, {0, 1}));
+        TEST(!intersects({0, 0}, {0, 1}, {1, 0}, {1, 1}));
+        TEST(!intersects({0, 0}, {0, 1}, {0, 0}, {1, 0}));
+        TEST(!intersects({0, 0}, {0, 0}, {0, 0}, {0, 1}));
+        TEST(!intersects({0, 0}, {0, 0}, {0, 0}, {0, 0}));
+    }
+    
+    // Perturbation consistency check
+    TEST(
+        intersects({0, 0}, {-1, 0}, {0, -1}, {0, 1}) !=
+        intersects({0, 0}, {1, 0}, {0, -1}, {0, 1})
+    );
+    
+    // Both versions agree for small coordinates
+    {
+        std::vector<std::pair<Point, Point>> segments;
+        segments.resize(2);
+        for(int bx = -3; bx <= 3; ++bx) {
+        for(int by = -3; by <= 3; ++by) {
+        for(int cx = -3; cx <= 3; ++cx) {
+        for(int cy = -3; cy <= 3; ++cy) {
+        for(int dx = -3; dx <= 3; ++dx) {
+        for(int dy = -3; dy <= 3; ++dy) {
+            Point a(0, 0);
+            Point b(bx, by);
+            Point c(cx, cy);
+            Point d(dx, dy);
+            segments[0] = {a, b};
+            segments[1] = {c, d};
+            TEST(intersects(a, b, c, d) == intersects(segments));
+        }
+        }
+        }
+        }
+        }
+        }
+    }
+    
+    // Both versions agree for random points
+    for(int t = 0; t < 100; ++t) {
+        Point a = randomPoint();
+        Point b = randomPoint();
+        Point c = randomPoint();
+        Point d = randomPoint();
+        std::vector<std::pair<Point, Point>> segments = {{a, b}, {c, d}};
+        TEST(intersects(a, b, c, d) == intersects(segments));
+    }
+    
+    // Random-generate non-intersecting configuration with brute-force use of
+    // pairwise intersects, and verify the result of the vector version of
+    // intersects.
+    for(int t = 0; t < 100; ++t) {
+        std::vector<std::pair<Point, Point>> segments; 
+        const std::size_t segmentCount = 50;
+        while(segments.size() != segmentCount) {
+            Point a = randomPoint();
+            Point b = randomPoint();
+            bool ok = true;
+            for(std::pair<Point, Point> segment : segments) {
+                if(intersects(a, b, segment.first, segment.second)) {
+                    ok = false;
+                    break;
+                }
+            }
+            if(ok) {
+                segments.emplace_back(a, b);
+            }
+        }
+        std::shuffle(segments.begin(), segments.end(), rng);
+        TEST(!intersects(segments));
+    }
+    
+    // Random-generate intersecting configuration with brute-force use of
+    // pairwise intersects, and verify the result of the vector version of
+    // intersects.
+    for(int t = 0; t < 100; ++t) {
+        std::vector<std::pair<Point, Point>> segments;
+        const std::size_t segmentCount = 50;
+        while(segments.size() != segmentCount) {
+            Point a = randomPoint();
+            Point b = randomPoint();
+            bool ok = true;
+            for(std::pair<Point, Point> segment : segments) {
+                if(intersects(a, b, segment.first, segment.second)) {
+                    ok = false;
+                    break;
+                }
+            }
+            if(segments.size() == segmentCount - 1) {
+                ok = !ok;
+            }
+            if(ok) {
+                segments.emplace_back(a, b);
+            }
+        }
+        std::shuffle(segments.begin(), segments.end(), rng);
+        TEST(intersects(segments));
+    }
+}
+
 int main() {
     test_int64_hpp();
     test_geometry_hpp();
+    test_intersection_hpp();
     
     std::cerr << "All tests completed successfully\n";
     

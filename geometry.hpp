@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <ostream>
 #include <stdexcept>
 #include <utility>
 
@@ -38,11 +41,10 @@ struct Point {
     int64_t y;
 };
 
-inline bool operator==(const Point& a, const Point& b) {
-    return a.x == b.x && a.y == b.y;
-}
-inline bool operator!=(const Point& a, const Point& b) {
-    return a.x != b.x || a.y != b.y;
+// Make it possible to use Point with std::cout/std::cerr.
+inline std::ostream& operator<<(std::ostream& out, Point p) {
+    out << '(' << p.x << ", " << p.y << ')';
+    return out;
 }
 
 // NOTE: The library outside this file does not use the coordinates directly,
@@ -69,6 +71,14 @@ inline bool operator!=(const Point& a, const Point& b) {
 // from the positive side. In the end, all the points converge back to their
 // original positions, but it can be proven that the non-degeneracy properties
 // hold.
+
+// Point comparisons.
+inline bool operator==(const Point& a, const Point& b) {
+    return a.x == b.x && a.y == b.y;
+}
+inline bool operator!=(const Point& a, const Point& b) {
+    return a.x != b.x || a.y != b.y;
+}
 
 // Returns true if the triangle (0, b - a, d - c) is strictly counterclockwise
 // oriented (not collinear).
@@ -121,6 +131,12 @@ inline bool isCCW(Point a, Point b, Point c, Point d) {
     }
 }
 
+// Returns true if the triangle (a, b, c) is strictly counterclockwise
+// oriented (not collinear).
+inline bool isCCW(Point a, Point b, Point c) {
+    return isCCW(a, b, a, c);
+}
+
 // Returns true if the y-coordinate of a is strictly less than, equal to or
 // less than the y-coordinate of b, respectively.
 inline bool yCoordLT(Point a, Point b) {
@@ -155,7 +171,7 @@ inline bool angleLT(Point a, Point b, Point c, Point d) {
 namespace std {
 template <>
 struct hash<tinygeom2d::Point> {
-    size_t operator()(const tinygeom2d::Point& p) const {
+    std::size_t operator()(const tinygeom2d::Point& p) const {
         uint64_t hash = 0;
         auto add = [&](uint64_t elem) {
             const uint64_t m = UINT64_C(0xc6a4a7935bd1e995);
@@ -167,7 +183,7 @@ struct hash<tinygeom2d::Point> {
         };
         add(p.x);
         add(p.y);
-        return (size_t)hash;
+        return (std::size_t)hash;
     }
 };
 }

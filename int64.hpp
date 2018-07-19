@@ -11,6 +11,7 @@
 namespace tinygeom2d {
 
 using std::int64_t;
+using std::uint64_t;
 
 // Portable implementation of multiplication of 64-bit unsigned integers.
 // The result is the std::pair (high bits, low bits).
