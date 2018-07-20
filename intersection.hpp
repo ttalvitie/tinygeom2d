@@ -31,7 +31,7 @@ inline bool intersects(Point a, Point b, Point c, Point d) {
 // at a higher horizontal line that is infinitesimally close. The points in both
 // segments must be ordered such that the bottom point is first. The segments
 // must not have length zero.
-bool segmentLeftOfAtBottom(
+inline bool segmentLeftOfAtBottom(
     std::pair<Point, Point> a,
     std::pair<Point, Point> b
 ) {
