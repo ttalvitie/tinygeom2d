@@ -17,23 +17,23 @@ TMPDIR=`mktemp -d`
 
 # Add library to its own directory
 mkdir "${TMPDIR}/tinygeom2d"
-for f in *.hpp
+for f in tinygeom2d/*.hpp
 do
-    ln -s "$(pwd)/${f}" "${TMPDIR}/tinygeom2d/${f}"
+    ln -s "$(pwd)/${f}" "${TMPDIR}/${f}"
 done
 
 # Create two source files that both include all headers, and one of them
 # contains main
-for f in *.hpp
+for f in tinygeom2d/*.hpp
 do
-    echo "#include \"tinygeom2d/${f}\"" >> "${TMPDIR}/a.cpp"
-    echo "#include \"tinygeom2d/${f}\"" >> "${TMPDIR}/b.cpp"
+    echo "#include \"${f}\"" >> "${TMPDIR}/a.cpp"
+    echo "#include \"${f}\"" >> "${TMPDIR}/b.cpp"
 done
 echo "int main(int, char**) { }" >> "${TMPDIR}/a.cpp"
 
 # Try to compile the source files into a binary
 cd "${TMPDIR}"
-if g++ a.cpp b.cpp -o /dev/null -std=c++11
+if g++ a.cpp b.cpp -o /dev/null -std=c++11 -w
 then
     echo "Success"
     exit 0

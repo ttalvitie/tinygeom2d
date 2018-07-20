@@ -7,10 +7,10 @@
 #include <utility>
 #include <vector>
 
-#include "int64.hpp"
-#include "geometry.hpp"
-#include "intersection.hpp"
-#include "domain.hpp"
+#include "tinygeom2d/int64.hpp"
+#include "tinygeom2d/geometry.hpp"
+#include "tinygeom2d/intersection.hpp"
+#include "tinygeom2d/domain.hpp"
 
 using namespace tinygeom2d;
 
