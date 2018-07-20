@@ -12,6 +12,13 @@
 
 namespace tinygeom2d {
 
+// The identifier of a vertex of the boundary of a polygonal domain. Contains
+// indexes to both the polygon and the vertex of the polygon.
+struct VertexID {
+    std::size_t polygon;
+    std::size_t vertex;
+};
+
 // A domain in the plane with polygonal boundaries. The domain may be bounded
 // or unbounded. It may also be disconnected and contain holes.
 class Domain {
@@ -44,6 +51,34 @@ public:
     // vertices in each polygon may have been reversed.
     const std::vector<std::vector<Point>>& boundary() const {
         return boundary_;
+    }
+    
+    // Returns the position of the vertex with given identifier. The indices
+    // are not checked for overflows.
+    Point vertex(VertexID id) const {
+        return boundary_[id.polygon][id.vertex];
+    }
+    
+    // Returns the position of the predecessor of a vertex with given
+    // identifier. The indices are not checked for overflows.
+    Point prevVertex(VertexID id) const {
+        const std::vector<Point>& poly = boundary_[id.polygon];
+        if(id.vertex == 0) {
+            return poly.back();
+        } else {
+            return poly[id.vertex - 1];
+        }
+    }
+    
+    // Returns the position of the successor of a vertex with given identifier.
+    // The indices are not checked for overflows.
+    Point nextVertex(VertexID id) const {
+        const std::vector<Point>& poly = boundary_[id.polygon];
+        if(id.vertex == poly.size() - 1) {
+            return poly.front();
+        } else {
+            return poly[id.vertex + 1];
+        }
     }
     
 private:

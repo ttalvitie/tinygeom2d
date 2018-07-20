@@ -586,6 +586,23 @@ void test_domain_hpp() {
         
         TEST(correct == ok);
     }
+    
+    // vertex, prevVertex and nextVertex in the example
+    {
+        Domain domain = Domain::createBounded(example);
+        for(std::size_t polyIdx = 0; polyIdx < example.size(); ++polyIdx) {
+            const std::vector<Point>& poly = example[polyIdx];
+            for(std::size_t vertIdx = 0; vertIdx < poly.size(); ++vertIdx) {
+                size_t prevVertIdx = vertIdx ? vertIdx - 1 : poly.size() - 1;
+                size_t nextVertIdx = vertIdx == poly.size() - 1 ? 0 : vertIdx + 1;
+                
+                VertexID id = {polyIdx, vertIdx};
+                TEST(domain.vertex(id) == poly[vertIdx]);
+                TEST(domain.prevVertex(id) == poly[prevVertIdx]);
+                TEST(domain.nextVertex(id) == poly[nextVertIdx]);
+            }
+        }
+    }
 }
 
 int main() {
