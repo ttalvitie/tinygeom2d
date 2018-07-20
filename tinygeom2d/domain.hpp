@@ -81,6 +81,28 @@ public:
         }
     }
     
+    // Returns the identifier of the predecessor of a vertex with given
+    // identifier. The indices are not checked for overflows.
+    VertexID prevVertexID(VertexID id) const {
+        const std::vector<Point>& poly = boundary_[id.polygon];
+        if(id.vertex == 0) {
+            return {id.polygon, poly.size() - 1};
+        } else {
+            return {id.polygon, id.vertex - 1};
+        }
+    }
+    
+    // Returns the identifier of the successor of a vertex with given
+    // identifier. The indices are not checked for overflows.
+    VertexID nextVertexID(VertexID id) const {
+        const std::vector<Point>& poly = boundary_[id.polygon];
+        if(id.vertex == poly.size() - 1) {
+            return {id.polygon, 0};
+        } else {
+            return {id.polygon, id.vertex + 1};
+        }
+    }
+    
 private:
     Domain(std::vector<std::vector<Point>> boundary, bool bounded)
         : boundary_(std::move(boundary))

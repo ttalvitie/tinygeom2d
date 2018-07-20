@@ -600,6 +600,8 @@ void test_domain_hpp() {
                 TEST(domain.vertex(id) == poly[vertIdx]);
                 TEST(domain.prevVertex(id) == poly[prevVertIdx]);
                 TEST(domain.nextVertex(id) == poly[nextVertIdx]);
+                TEST(domain.prevVertex(id) == domain.vertex(domain.prevVertexID(id)));
+                TEST(domain.nextVertex(id) == domain.vertex(domain.nextVertexID(id)));
             }
         }
     }
