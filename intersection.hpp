@@ -24,6 +24,33 @@ inline bool intersects(Point a, Point b, Point c, Point d) {
     return isCCW(a, b, c) != isCCW(a, b, d) && isCCW(c, d, a) != isCCW(c, d, b);
 }
 
+// Returns true if segment a is to the left of segment b in the left-to-right
+// ordering for segments with intersecting y-coordinate ranges, such that the
+// comparison is done at the bottommost horizontal line that intersects both
+// segments. If both segments have the same bottom point, the comparison is done
+// at a higher horizontal line that is infinitesimally close. The points in both
+// segments must be ordered such that the bottom point is first. The segments
+// must not have length zero.
+bool segmentLeftOfAtBottom(
+    std::pair<Point, Point> a,
+    std::pair<Point, Point> b
+) {
+    if(a == b) {
+        return false;
+    }
+    if(a.first == b.first) {
+        return isCCW(a.second, b.first, b.second);
+    }
+    if(yCoordLT(a.first, b.first)) {
+        return isCCW(a.second, a.first, b.first);
+    } else {
+        return isCCW(a.first, b.first, b.second);
+    }
+}
+
+// along the horizontal line with y-coordinate at the larger of the bottom
+// y-coordinates of the segments. If 
+
 // Returns true if two of the given segments intersect.
 inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
     typedef std::pair<Point, Point> Segment;
@@ -57,28 +84,12 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
         return yCoordLT(a.second, b.second);
     });
     
-    // Left-to-right ordering for segments with intersecting y-coordinate ranges
-    // in the horizontal line with y-coordinate at the larger of the bottom
-    // y-coordinates of the segments.
-    auto orderX = [](Segment a, Segment b) {
-        if(a == b) {
-            return false;
-        }
-        if(a.first == b.first) {
-            return isCCW(a.second, b.first, b.second);
-        }
-        if(yCoordLT(a.first, b.first)) {
-            return isCCW(a.second, a.first, b.first);
-        } else {
-            return isCCW(a.first, b.first, b.second);
-        }
-    };
-    
     // Run a sweepline from bottom to top, maintaining a ordered set of
     // segments currently on the sweepline. This way, intersecting segments
     // can be caught as neighboring segments.
-    typedef std::set<Segment, decltype(orderX)> SweeplineSegmentSet;
-    SweeplineSegmentSet sweeplineSegments(orderX);
+    typedef std::set<Segment, bool (*)(Segment, Segment)> Sweepline;
+    typedef Sweepline::iterator Iter;
+    Sweepline sweepline(segmentLeftOfAtBottom);
     std::size_t bottomPos = 0;
     std::size_t topPos = 0;
     while(topPos != permTop.size()) {
@@ -88,10 +99,9 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
             bottomPos != permBottom.size() &&
             yCoordLT(permBottom[bottomPos].first, permTop[topPos].second)
         ) {
-            SweeplineSegmentSet::iterator pos;
+            Iter pos;
             bool inserted;
-            std::tie(pos, inserted) =
-                sweeplineSegments.insert(permBottom[bottomPos++]);
+            std::tie(pos, inserted) = sweepline.insert(permBottom[bottomPos++]);
             
             // Duplicate segment means intersection
             if(!inserted) {
@@ -99,8 +109,8 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
             }
             
             // Check for intersection with neighbors
-            if(pos != sweeplineSegments.begin()) {
-                auto prev = pos;
+            if(pos != sweepline.begin()) {
+                Iter prev = pos;
                 --prev;
                 if(intersects(
                     prev->first, prev->second,
@@ -110,10 +120,10 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
                 }
             }
             
-            auto next = pos;
+            Iter next = pos;
             ++next;
             if(
-                next != sweeplineSegments.end() &&
+                next != sweepline.end() &&
                 intersects(
                     next->first, next->second,
                     pos->first, pos->second
@@ -122,22 +132,25 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
                 return true;
             }
         } else {
-            auto pos = sweeplineSegments.find(permTop[topPos++]);
+            Iter pos = sweepline.find(permTop[topPos++]);
             
             // Check for intersecting neighbors introduced by removal
-            if(pos != sweeplineSegments.begin()) {
-                auto prev = pos;
+            if(pos != sweepline.begin()) {
+                Iter prev = pos;
                 --prev;
-                auto next = pos;
+                Iter next = pos;
                 ++next;
-                if(next != sweeplineSegments.end()) {
-                    if(intersects(prev->first, prev->second, next->first, next->second)) {
+                if(next != sweepline.end()) {
+                    if(intersects(
+                        prev->first, prev->second,
+                        next->first, next->second)
+                    ) {
                         return true;
                     }
                 }
             }
             
-            sweeplineSegments.erase(pos);
+            sweepline.erase(pos);
         }
     }
     return false;

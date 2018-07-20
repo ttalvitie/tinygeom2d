@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <stdexcept>
+#include <tuple>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -8,6 +10,7 @@
 #include "int64.hpp"
 #include "geometry.hpp"
 #include "intersection.hpp"
+#include "domain.hpp"
 
 using namespace tinygeom2d;
 
@@ -424,10 +427,172 @@ void test_intersection_hpp() {
     }
 }
 
+void test_domain_hpp() {
+    // Example correctly oriented bounded domain boundary
+    const std::vector<std::vector<Point>> example = {
+        {{0, 4}, {1, 1}, {3, 2}, {6, 0}, {9, 3}, {8, 8}},
+        {{2, 4}, {7, 6}, {8, 3}, {5, 1}, {2, 3}},
+        {{5, 2}, {6, 2}, {5, 5}, {3, 3}},
+        {{4, 3}, {5, 4}, {5, 3}},
+        {{7, 3}, {7, 4}, {6, 5}},
+        {{1, 5}, {7, 9}, {2, 9}, {1, 7}},
+        {{2, 7}, {2, 8}, {3, 8}, {4, 8}, {3, 7}}
+    };
+    
+    // Example with randomized orientations is oriented correctly
+    {
+        std::vector<std::vector<Point>> correct = example;
+        std::shuffle(correct.begin(), correct.end(), rng);
+        
+        for(int t = 0; t < 5; ++t) {
+            std::vector<std::vector<Point>> boundary = correct;
+            for(std::vector<Point>& poly : boundary) {
+                if(rng() & 1) {
+                    std::reverse(poly.begin(), poly.end());
+                }
+            }
+            
+            Domain domain = Domain::createBounded(boundary);
+            TEST(domain.boundary() == correct);
+        }
+        
+        for(std::vector<Point>& poly : correct) {
+            std::reverse(poly.begin(), poly.end());
+        }
+        
+        for(int t = 0; t < 5; ++t) {
+            std::vector<std::vector<Point>> boundary = correct;
+            for(std::vector<Point>& poly : boundary) {
+                if(rng() & 1) {
+                    std::reverse(poly.begin(), poly.end());
+                }
+            }
+            
+            Domain domain = Domain::createUnbounded(boundary);
+            TEST(domain.boundary() == correct);
+        }
+    }
+    
+    // Linearly mapped example is oriented correctly
+    for(int t = 0; t < 100; ++t) {
+        std::vector<std::vector<Point>> correct = example;
+        int64_t a = 0;
+        int64_t b = 0;
+        int64_t c = 0;
+        int64_t d = 0;
+        while(a * d == b * c) {
+            a = std::uniform_int_distribution<int64_t>(-1000000, 1000000)(rng);
+            b = std::uniform_int_distribution<int64_t>(-1000000, 1000000)(rng);
+            c = std::uniform_int_distribution<int64_t>(-1000000, 1000000)(rng);
+            d = std::uniform_int_distribution<int64_t>(-1000000, 1000000)(rng);
+        }
+        for(std::vector<Point>& poly : correct) {
+            for(Point& v : poly) {
+                Point old = v;
+                v.x = a * old.x + b * old.y;
+                v.y = c * old.x + d * old.y;
+            }
+        }
+        if(a * d < b * c) {
+            for(std::vector<Point>& poly : correct) {
+                std::reverse(poly.begin(), poly.end());
+            }
+        }
+        
+        {
+            std::vector<std::vector<Point>> boundary = correct;
+            for(std::vector<Point>& poly : boundary) {
+                if(rng() & 1) {
+                    std::reverse(poly.begin(), poly.end());
+                }
+            }
+            
+            Domain domain = Domain::createBounded(boundary);
+            TEST(domain.boundary() == correct);
+        }
+        
+        for(std::vector<Point>& poly : correct) {
+            std::reverse(poly.begin(), poly.end());
+        }
+        
+        {
+            std::vector<std::vector<Point>> boundary = correct;
+            for(std::vector<Point>& poly : boundary) {
+                if(rng() & 1) {
+                    std::reverse(poly.begin(), poly.end());
+                }
+            }
+            
+            Domain domain = Domain::createUnbounded(boundary);
+            TEST(domain.boundary() == correct);
+        }
+    }
+    
+    // Extract the edges of the example domain boundary
+    std::vector<std::pair<Point, Point>> exampleEdges_;
+    for(const std::vector<Point>& poly : example) {
+        Point a = poly.back();
+        for(Point b : poly) {
+            exampleEdges_.emplace_back(a, b);
+            a = b;
+        }
+    }
+    const std::vector<std::pair<Point, Point>> exampleEdges = std::move(exampleEdges_);
+    
+    // Try adding triangles to the domain and check whether domaincreation fails
+    // in the right cases
+    for(int t = 0; t < 5000; ++t) {
+        int ax = std::uniform_int_distribution<int>(-2, 11)(rng);
+        int ay = std::uniform_int_distribution<int>(-2, 11)(rng);
+        int bx = std::uniform_int_distribution<int>(-2, 11)(rng);
+        int by = std::uniform_int_distribution<int>(-2, 11)(rng);
+        int cx = std::uniform_int_distribution<int>(-2, 11)(rng);
+        int cy = std::uniform_int_distribution<int>(-2, 11)(rng);
+        
+        Point a(ax, ay);
+        Point b(bx, by);
+        Point c(cx, cy);
+        
+        std::vector<std::vector<Point>> boundary = example;
+        boundary.push_back({a, b, c});
+        
+        // See if adding the triangle breaks the boundary
+        bool correct = a != b && b != c && c != a;
+        for(std::pair<Point, Point> edge : exampleEdges) {
+            if(
+                intersects(edge.first, edge.second, a, b) ||
+                intersects(edge.first, edge.second, b, c) ||
+                intersects(edge.first, edge.second, c, a) ||
+                edge.first == a ||
+                edge.first == b ||
+                edge.first == c
+            ) {
+                correct = false;
+                break;
+            }
+        }
+        
+        // See if the call throws an error
+        bool ok = true;
+        try {
+            if(rng() & 1) {
+                Domain::createBounded(boundary);
+            } else {
+                Domain::createUnbounded(boundary);
+            }
+        } catch(std::invalid_argument) {
+            ok = false;
+        }
+        
+        TEST(correct == ok);
+    }
+}
+
 int main() {
     test_int64_hpp();
     test_geometry_hpp();
     test_intersection_hpp();
+    test_domain_hpp();
     
     std::cerr << "All tests completed successfully\n";
     
