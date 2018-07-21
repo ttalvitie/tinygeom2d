@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <set>
 #include <stdexcept>
@@ -130,6 +131,39 @@ public:
         } else {
             return {id.polygon, id.vertex + 1};
         }
+    }
+    
+    // Returns true if given point is an interior point of the domain. The
+    // vertices of the domain do not count as interior points.
+    bool isInteriorPoint(Point point) const {
+        // Check whether the number of edges that the ray shot from point to
+        // the left is odd.
+        bool ret = false;
+        for(const std::vector<Point>& poly : boundary_) {
+            Point a = poly.back();
+            if(a == point) {
+                return false;
+            }
+            
+            for(Point b : poly) {
+                if(b == point) {
+                    return false;
+                }
+                
+                Point x = a;
+                Point y = b;
+                if(yCoordLT(y, x)) {
+                    std::swap(x, y);
+                }
+                
+                if(yCoordLT(x, point) && yCoordLT(point, y) && isCCW(x, point, y)) {
+                    ret = !ret;
+                }
+                
+                a = b;
+            }
+        }
+        return ret;
     }
     
 private:

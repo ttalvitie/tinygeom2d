@@ -457,6 +457,60 @@ void test_domain_hpp() {
         }
     }
     
+    // Example domain has the right set of interior points
+    {
+        Domain domain(example);
+        std::vector<Point> interior;
+        for(int y = 0; y < 10; ++y) {
+            for(int x = 0; x < 10; ++x) {
+                Point p(x, y);
+                
+                // Ignore points that are on the boundary, because their
+                // interiority is dependent on the perturbation.
+                if(
+                    p == Point(7, 1) ||
+                    p == Point(8, 2) ||
+                    p == Point(4, 4) ||
+                    p == Point(2, 5) ||
+                    p == Point(4, 6) ||
+                    p == Point(6, 7) ||
+                    p == Point(4, 7) ||
+                    p == Point(1, 6) ||
+                    p == Point(3, 9) ||
+                    p == Point(4, 9) ||
+                    p == Point(5, 9) ||
+                    p == Point(6, 9)
+                ) {
+                    continue;
+                }
+                
+                if(domain.isInteriorPoint(p)) {
+                    interior.push_back(p);
+                }
+            }
+        }
+        std::vector<Point> correct = {
+            {6, 1},
+            {1, 2},
+            {2, 2},
+            {7, 2},
+            {1, 3},
+            {1, 4},
+            {8, 4},
+            {3, 5},
+            {4, 5},
+            {8, 5},
+            {2, 6},
+            {5, 6},
+            {6, 6},
+            {8, 6},
+            {7, 7},
+            {8, 7},
+            {5, 8}
+        };
+        TEST(interior == correct);
+    }
+    
     // Linearly mapped example is oriented correctly
     for(int t = 0; t < 100; ++t) {
         std::vector<std::vector<Point>> correct = example;
