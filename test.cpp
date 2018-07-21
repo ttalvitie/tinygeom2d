@@ -452,23 +452,7 @@ void test_domain_hpp() {
                 }
             }
             
-            Domain domain = Domain::createBounded(boundary);
-            TEST(domain.boundary() == correct);
-        }
-        
-        for(std::vector<Point>& poly : correct) {
-            std::reverse(poly.begin(), poly.end());
-        }
-        
-        for(int t = 0; t < 5; ++t) {
-            std::vector<std::vector<Point>> boundary = correct;
-            for(std::vector<Point>& poly : boundary) {
-                if(rng() & 1) {
-                    std::reverse(poly.begin(), poly.end());
-                }
-            }
-            
-            Domain domain = Domain::createUnbounded(boundary);
+            Domain domain(boundary);
             TEST(domain.boundary() == correct);
         }
     }
@@ -507,23 +491,7 @@ void test_domain_hpp() {
                 }
             }
             
-            Domain domain = Domain::createBounded(boundary);
-            TEST(domain.boundary() == correct);
-        }
-        
-        for(std::vector<Point>& poly : correct) {
-            std::reverse(poly.begin(), poly.end());
-        }
-        
-        {
-            std::vector<std::vector<Point>> boundary = correct;
-            for(std::vector<Point>& poly : boundary) {
-                if(rng() & 1) {
-                    std::reverse(poly.begin(), poly.end());
-                }
-            }
-            
-            Domain domain = Domain::createUnbounded(boundary);
+            Domain domain(boundary);
             TEST(domain.boundary() == correct);
         }
     }
@@ -575,11 +543,7 @@ void test_domain_hpp() {
         // See if the call throws an error
         bool ok = true;
         try {
-            if(rng() & 1) {
-                Domain::createBounded(boundary);
-            } else {
-                Domain::createUnbounded(boundary);
-            }
+            Domain domain(boundary);
         } catch(std::invalid_argument) {
             ok = false;
         }
@@ -589,7 +553,7 @@ void test_domain_hpp() {
     
     // vertex, prevVertex and nextVertex in the example
     {
-        Domain domain = Domain::createBounded(example);
+        Domain domain(example);
         for(std::size_t polyIdx = 0; polyIdx < example.size(); ++polyIdx) {
             const std::vector<Point>& poly = example[polyIdx];
             for(std::size_t vertIdx = 0; vertIdx < poly.size(); ++vertIdx) {

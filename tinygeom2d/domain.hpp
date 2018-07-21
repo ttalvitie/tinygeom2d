@@ -19,36 +19,65 @@ struct VertexID {
     std::size_t vertex;
 };
 
-// A domain in the plane with polygonal boundaries. The domain may be bounded
-// or unbounded. It may also be disconnected and contain holes.
+// A bounded domain in the plane with polygonal boundaries. The domain may be
+// disconnected and contain holes.
 class Domain {
 public:
+    // Creates an empty domain.
+    Domain() { }
+    
     // Given boundary polygons, create a bounded domain, i.e. points inside an
     // odd number of polygons are inside the domain. The orientations of the
     // boundary polygons do not matter. No vertex may appear twice in the
     // boundary, and boundary edges may not intersect each other. Each boundary
     // polygon must contain at least three vertices.
     // Throws std::invalid_argument if the boundary is invalid.
-    static Domain createBounded(std::vector<std::vector<Point>> boundary) {
-        return Domain(std::move(boundary), true);
-    }
-    
-    // Given boundary polygons, create an unbounded domain, i.e. points inside
-    // an even number of polygons are inside the domain. The orientations of the
-    // boundary polygons do not matter. No vertex may appear twice in the
-    // boundary, and boundary edges may not intersect each other. Each boundary
-    // polygon must contain at least three vertices.
-    // Throws std::invalid_argument if the boundary is invalid.
-    static Domain createUnbounded(std::vector<std::vector<Point>> boundary) {
-        return Domain(std::move(boundary), false);
+    Domain(std::vector<std::vector<Point>> boundary)
+        : boundary_(std::move(boundary))
+    {
+        // Check for sizes of boundary polygons.
+        for(const std::vector<Point>& polygon : boundary_) {
+            if(polygon.size() < 3) {
+                throw std::invalid_argument("tinygeom2d::Domain::create*: boundary polygon contains less than 3 vertices");
+            }
+        }
+        
+        // Check for vertices that appear twice
+        std::vector<Point> vertices;
+        for(const std::vector<Point>& polygon : boundary_) {
+            for(Point vertex : polygon) {
+                vertices.push_back(vertex);
+            }
+        }
+        std::sort(vertices.begin(), vertices.end(), yCoordLT);
+        for(std::size_t i = 1; i < vertices.size(); ++i) {
+            if(vertices[i - 1] == vertices[i]) {
+                throw std::invalid_argument("tinygeom2d::Domain::create*: point appears twice on the boundary");
+            }
+        }
+        
+        // Check for intersecting boundary edges
+        std::vector<std::pair<Point, Point>> edges;
+        for(const std::vector<Point>& polygon : boundary_) {
+            Point a = polygon.back();
+            for(Point b : polygon) {
+                edges.emplace_back(a, b);
+                a = b;
+            }
+        }
+        if(intersects(std::move(edges))) {
+            throw std::invalid_argument("tinygeom2d::Domain::create*: intersecting boundary edges found");
+        }
+        
+        orientBoundary_();
     }
     
     // Returns the boundary polygons of the domain. The polygons are oriented
     // such that outer boundaries are counterclockwise oriented and inner
     // boundaries (holes in the domain) are clockwise oriented. The ordering
     // of the boundary polygons is guaranteed to be the same as in the argument
-    // given to createBounded or createUnbounded, but the ordering of the
-    // vertices in each polygon may have been reversed.
+    // given to the constructor, but the ordering of the vertices in each
+    // polygon may have been reversed.
     const std::vector<std::vector<Point>>& boundary() const {
         return boundary_;
     }
@@ -104,47 +133,7 @@ public:
     }
     
 private:
-    Domain(std::vector<std::vector<Point>> boundary, bool bounded)
-        : boundary_(std::move(boundary))
-    {
-        // Check for sizes of boundary polygons.
-        for(const std::vector<Point>& polygon : boundary_) {
-            if(polygon.size() < 3) {
-                throw std::invalid_argument("tinygeom2d::Domain::create*: boundary polygon contains less than 3 vertices");
-            }
-        }
-        
-        // Check for vertices that appear twice
-        std::vector<Point> vertices;
-        for(const std::vector<Point>& polygon : boundary_) {
-            for(Point vertex : polygon) {
-                vertices.push_back(vertex);
-            }
-        }
-        std::sort(vertices.begin(), vertices.end(), yCoordLT);
-        for(std::size_t i = 1; i < vertices.size(); ++i) {
-            if(vertices[i - 1] == vertices[i]) {
-                throw std::invalid_argument("tinygeom2d::Domain::create*: point appears twice on the boundary");
-            }
-        }
-        
-        // Check for intersecting boundary edges
-        std::vector<std::pair<Point, Point>> edges;
-        for(const std::vector<Point>& polygon : boundary_) {
-            Point a = polygon.back();
-            for(Point b : polygon) {
-                edges.emplace_back(a, b);
-                a = b;
-            }
-        }
-        if(intersects(std::move(edges))) {
-            throw std::invalid_argument("tinygeom2d::Domain::create*: intersecting boundary edges found");
-        }
-        
-        orientBoundary_(bounded);
-    }
-    
-    void orientBoundary_(bool bounded) {
+    void orientBoundary_() {
         std::vector<bool> seen(boundary_.size());
         std::vector<bool> outer(boundary_.size());
         
@@ -251,11 +240,11 @@ private:
                 pos = sweepline.insert(pos, {event.edge1, odd});
                 sweepline.insert(pos, {event.edge2, !odd});
                 
-                // At the first Add event, we determine the orientation correct
-                // orientation for each polygon
+                // At the first Add event, we determine the correct orientation
+                // for each polygon
                 if(!seen[event.polyIdx]) {
                     seen[event.polyIdx] = true;
-                    outer[event.polyIdx] = bounded != odd;
+                    outer[event.polyIdx] = !odd;
                 }
             }
             if(event.type == Replace) {
