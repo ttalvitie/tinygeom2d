@@ -11,6 +11,7 @@
 #include "tinygeom2d/geometry.hpp"
 #include "tinygeom2d/intersection.hpp"
 #include "tinygeom2d/domain.hpp"
+#include "tinygeom2d/visibility.hpp"
 
 using namespace tinygeom2d;
 
@@ -427,21 +428,21 @@ void test_intersection_hpp() {
     }
 }
 
+// Example correctly oriented bounded domain boundary
+const std::vector<std::vector<Point>> exampleBoundary = {
+    {{0, 4}, {1, 1}, {3, 2}, {6, 0}, {9, 3}, {8, 8}},
+    {{2, 4}, {7, 6}, {8, 3}, {5, 1}, {2, 3}},
+    {{5, 2}, {6, 2}, {5, 5}, {3, 3}},
+    {{4, 3}, {5, 4}, {5, 3}},
+    {{7, 3}, {7, 4}, {6, 5}},
+    {{1, 5}, {7, 9}, {2, 9}, {1, 7}},
+    {{2, 7}, {2, 8}, {3, 8}, {4, 8}, {3, 7}}
+};
+
 void test_domain_hpp() {
-    // Example correctly oriented bounded domain boundary
-    const std::vector<std::vector<Point>> example = {
-        {{0, 4}, {1, 1}, {3, 2}, {6, 0}, {9, 3}, {8, 8}},
-        {{2, 4}, {7, 6}, {8, 3}, {5, 1}, {2, 3}},
-        {{5, 2}, {6, 2}, {5, 5}, {3, 3}},
-        {{4, 3}, {5, 4}, {5, 3}},
-        {{7, 3}, {7, 4}, {6, 5}},
-        {{1, 5}, {7, 9}, {2, 9}, {1, 7}},
-        {{2, 7}, {2, 8}, {3, 8}, {4, 8}, {3, 7}}
-    };
-    
     // Example with randomized orientations is oriented correctly
     {
-        std::vector<std::vector<Point>> correct = example;
+        std::vector<std::vector<Point>> correct = exampleBoundary;
         std::shuffle(correct.begin(), correct.end(), rng);
         
         for(int t = 0; t < 5; ++t) {
@@ -459,7 +460,7 @@ void test_domain_hpp() {
     
     // Example domain has the right set of interior points
     {
-        Domain domain(example);
+        Domain domain(exampleBoundary);
         std::vector<Point> interior;
         for(int y = 0; y < 10; ++y) {
             for(int x = 0; x < 10; ++x) {
@@ -513,7 +514,7 @@ void test_domain_hpp() {
     
     // Linearly mapped example is oriented correctly
     for(int t = 0; t < 100; ++t) {
-        std::vector<std::vector<Point>> correct = example;
+        std::vector<std::vector<Point>> correct = exampleBoundary;
         int64_t a = 0;
         int64_t b = 0;
         int64_t c = 0;
@@ -552,7 +553,7 @@ void test_domain_hpp() {
     
     // Extract the edges of the example domain boundary
     std::vector<std::pair<Point, Point>> exampleEdges_;
-    for(const std::vector<Point>& poly : example) {
+    for(const std::vector<Point>& poly : exampleBoundary) {
         Point a = poly.back();
         for(Point b : poly) {
             exampleEdges_.emplace_back(a, b);
@@ -575,7 +576,7 @@ void test_domain_hpp() {
         Point b(bx, by);
         Point c(cx, cy);
         
-        std::vector<std::vector<Point>> boundary = example;
+        std::vector<std::vector<Point>> boundary = exampleBoundary;
         boundary.push_back({a, b, c});
         
         // See if adding the triangle breaks the boundary
@@ -604,22 +605,83 @@ void test_domain_hpp() {
         
         TEST(correct == ok);
     }
-    
-    // vertex, prevVertex and nextVertex in the example
+}
+
+void test_visibility_hpp() {
+    // computePointVisibility throws exactly when domain.isInteriorPoint(center)
+    // is false for the example domain
     {
-        Domain domain(example);
-        for(std::size_t polyIdx = 0; polyIdx < example.size(); ++polyIdx) {
-            const std::vector<Point>& poly = example[polyIdx];
-            for(std::size_t vertIdx = 0; vertIdx < poly.size(); ++vertIdx) {
-                size_t prevVertIdx = vertIdx ? vertIdx - 1 : poly.size() - 1;
-                size_t nextVertIdx = vertIdx == poly.size() - 1 ? 0 : vertIdx + 1;
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                bool throws = false;
+                try {
+                    computePointVisibility(domain, center);
+                } catch(std::domain_error&) {
+                    throws = true;
+                }
+                TEST(domain.isInteriorPoint(center) != throws);
+            }
+        }
+    }
+    
+    // computePointVisibility visible verts and edges vectors sizes match size
+    // function
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.isInteriorPoint(center)) {
+                    continue;
+                }
+                PointVisibility vis = computePointVisibility(domain, center);
+                TEST(vis.verts().size() == vis.size());
+                TEST(vis.edges().size() == vis.size());
+            }
+        }
+    }
+    
+    // computePointVisibility visible verts matches brute force
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.isInteriorPoint(center)) {
+                    continue;
+                }
                 
-                VertexID id = {polyIdx, vertIdx};
-                TEST(domain.vertex(id) == poly[vertIdx]);
-                TEST(domain.prevVertex(id) == poly[prevVertIdx]);
-                TEST(domain.nextVertex(id) == poly[nextVertIdx]);
-                TEST(domain.prevVertex(id) == domain.vertex(domain.prevVertexID(id)));
-                TEST(domain.nextVertex(id) == domain.vertex(domain.nextVertexID(id)));
+                std::vector<Point> correct;
+                for(const std::vector<Point>& poly : domain.boundary()) {
+                    for(Point p : poly) {
+                        bool ok = true;
+                        for(const std::vector<Point>& poly2 : domain.boundary()) {
+                            Point a = poly2.back();
+                            for(Point b : poly2) {
+                                if(
+                                    !(a == center && b == p) &&
+                                    !(a == p && b == center) &&
+                                    intersects(a, b, center, p)
+                                ) {
+                                    ok = false;
+                                }
+                                a = b;
+                            }
+                        }
+                        if(ok) {
+                            correct.push_back(p);
+                        }
+                    }
+                }
+                
+                std::sort(correct.begin(), correct.end(), [&](Point a, Point b) {
+                    return angleLT(center, a, center, b);
+                });
+                
+                PointVisibility vis = computePointVisibility(domain, center);
+                TEST(vis.verts() == correct);
             }
         }
     }
@@ -630,6 +692,7 @@ int main() {
     test_geometry_hpp();
     test_intersection_hpp();
     test_domain_hpp();
+    test_visibility_hpp();
     
     std::cerr << "All tests completed successfully\n";
     
