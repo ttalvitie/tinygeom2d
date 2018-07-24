@@ -661,7 +661,7 @@ void test_visibility_hpp() {
     }
     
     // computePointVisibility visible verts and edges vectors sizes match size
-    // function
+    // function in example domain
     {
         Domain domain(exampleBoundary);
         for(int x = -2; x < 12; ++x) {
@@ -677,7 +677,7 @@ void test_visibility_hpp() {
         }
     }
     
-    // computePointVisibility visible verts matches brute force
+    // computePointVisibility visible verts matches brute force in example domain
     {
         Domain domain(exampleBoundary);
         for(int x = -2; x < 12; ++x) {
@@ -716,6 +716,33 @@ void test_visibility_hpp() {
                 
                 PointVisibility vis = computePointVisibility(domain, center);
                 TEST(vis.verts() == correct);
+            }
+        }
+    }
+    
+    // computePointVisibility visible edges are correctly oriented and between
+    // correct vertices in the example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.isInteriorPoint(center)) {
+                    continue;
+                }
+                
+                PointVisibility vis = computePointVisibility(domain, center);
+                
+                for(std::size_t i = 0; i < vis.size(); ++i) {
+                    Point a = vis.verts()[i];
+                    Point b = vis.verts()[(i + 1) % vis.size()];
+                    Point x, y;
+                    std::tie(x, y) = vis.edges()[i];
+                    
+                    TEST(isCCW(center, x, y));
+                    TEST(!isCCW(center, a, x));
+                    TEST(!isCCW(center, y, b));
+                }
             }
         }
     }
