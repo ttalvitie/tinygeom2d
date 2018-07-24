@@ -746,6 +746,141 @@ void test_visibility_hpp() {
             }
         }
     }
+    
+    // computeVertexVisibility throws exactly when center is not a boundary
+    // vertex of the domain in the example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                bool throws = false;
+                try {
+                    computeVertexVisibility(domain, center);
+                } catch(std::domain_error&) {
+                    throws = true;
+                }
+                TEST(domain.vertexMap().count(center) != throws);
+            }
+        }
+    }
+    
+    // computeVertexVisibility verts has exactly one element more than edges
+    // in the example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.vertexMap().count(center)) {
+                    continue;
+                }
+                VertexVisibility vis = computeVertexVisibility(domain, center);
+                TEST(vis.verts().size() == vis.edges().size() + 1);
+            }
+        }
+    }
+    
+    // computeVertexVisibility verts are CCW ordered in the example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.vertexMap().count(center)) {
+                    continue;
+                }
+                
+                VertexVisibility vis = computeVertexVisibility(domain, center);
+                for(std::size_t i = 1; i < vis.verts().size(); ++i) {
+                    TEST(isCCW(center, vis.verts()[i - 1], vis.verts()[i]));
+                }
+            }
+        }
+    }
+    
+    // computeVertexVisibility visible verts matches brute force in example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.vertexMap().count(center)) {
+                    continue;
+                }
+                
+                std::pair<std::size_t, std::size_t> id = domain.vertexID(center);
+                const std::vector<Point>& poly = domain.boundary()[id.first];
+                Point next = poly[(id.second + 1) % poly.size()];
+                Point prev = poly[(id.second + poly.size() - 1) % poly.size()];
+                
+                std::vector<Point> correct;
+                correct.push_back(next);
+                correct.push_back(prev);
+                for(const std::vector<Point>& poly : domain.boundary()) {
+                    for(Point vertex : poly) {
+                        bool ok = true;
+                        if(isCCW(center, next, prev)) {
+                            if(!isCCW(center, next, vertex) || !isCCW(center, vertex, prev)) {
+                                ok = false;
+                            }
+                        } else {
+                            if(!isCCW(center, next, vertex) && !isCCW(center, vertex, prev)) {
+                                ok = false;
+                            }
+                        }
+                        for(const std::vector<Point>& poly2 : domain.boundary()) {
+                            Point a = poly2.back();
+                            for(Point b : poly2) {
+                                if(intersects(center, vertex, a, b)) {
+                                    ok = false;
+                                }
+                                a = b;
+                            }
+                        }
+                        if(ok) {
+                            correct.push_back(vertex);
+                        }
+                    }
+                }
+                
+                VertexVisibility vis = computeVertexVisibility(domain, center);
+                std::vector<Point> result = vis.verts();
+                
+                sort(correct.begin(), correct.end(), yCoordLT);
+                sort(result.begin(), result.end(), yCoordLT);
+                
+                TEST(result == correct);
+            }
+        }
+    }
+    
+    // computeVertexVisibility visible edges are correctly oriented and between
+    // correct vertices in the example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.vertexMap().count(center)) {
+                    continue;
+                }
+                
+                VertexVisibility vis = computeVertexVisibility(domain, center);
+                
+                for(std::size_t i = 0; i < vis.edges().size(); ++i) {
+                    Point a = vis.verts()[i];
+                    Point b = vis.verts()[i + 1];
+                    Point x, y;
+                    std::tie(x, y) = vis.edges()[i];
+                    
+                    TEST(isCCW(center, x, y));
+                    TEST(!isCCW(center, a, x));
+                    TEST(!isCCW(center, y, b));
+                }
+            }
+        }
+    }
 }
 
 int main() {
