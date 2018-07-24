@@ -512,6 +512,40 @@ void test_domain_hpp() {
         TEST(interior == correct);
     }
     
+    // vertexMap is correct for the example domain
+    {
+        std::unordered_map<Point, std::pair<std::size_t, std::size_t>> correct;
+        for(std::size_t polyIdx = 0; polyIdx < exampleBoundary.size(); ++polyIdx) {
+            const std::vector<Point>& poly = exampleBoundary[polyIdx];
+            for(std::size_t vertIdx = 0; vertIdx < poly.size(); ++vertIdx) {
+                correct[poly[vertIdx]] = {polyIdx, vertIdx};
+            }
+        }
+        Domain domain(exampleBoundary);
+        TEST(domain.vertexMap() == correct);
+    }
+    
+    // vertexID works correctly in example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point p(x, y);
+                if(domain.vertexMap().count(p)) {
+                    TEST(domain.vertexID(p) == domain.vertexMap().find(p)->second);
+                } else {
+                    bool throws = false;
+                    try {
+                        domain.vertexID(p);
+                    } catch(std::domain_error&) {
+                        throws = true;
+                    }
+                    TEST(throws);
+                }
+            }
+        }
+    }
+    
     // Linearly mapped example is oriented correctly
     for(int t = 0; t < 100; ++t) {
         std::vector<std::vector<Point>> correct = exampleBoundary;

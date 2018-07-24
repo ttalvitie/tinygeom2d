@@ -5,6 +5,7 @@
 #include <set>
 #include <stdexcept>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -64,6 +65,7 @@ public:
         }
         
         orientBoundary_();
+        initVertexMap_();
     }
     
     // Returns the boundary polygons of the domain. The polygons are oriented
@@ -74,6 +76,26 @@ public:
     // polygon may have been reversed.
     const std::vector<std::vector<Point>>& boundary() const {
         return boundary_;
+    }
+    
+    // Returns a mapping from the vertices of the boundary to their locations
+    // in the boundary expressed as pairs (a, b), where a is the index of the
+    // polygon and b is the index of the vertex in the polygon. Thus, for any
+    // element (v -> (a, b)) in the map, boundary()[a][b] == v.
+    const std::unordered_map<Point, std::pair<std::size_t, std::size_t>>& vertexMap() const {
+        return vertexMap_;
+    }
+    
+    // Returns a pair consisting of the index of the polygon boundary and the
+    // index of the vertex in that polygon for given boundary vertex. Equivalent
+    // to vertexMap().find(vertex)->second if the vertex is a vertex of the boundary.
+    // Throws std::domain_error if vertex is not a vertex of the boundary.
+    std::pair<std::size_t, std::size_t> vertexID(Point vertex) const {
+        auto it = vertexMap_.find(vertex);
+        if(it == vertexMap_.end()) {
+            throw std::domain_error("tinygeom2d::Domain::vertexID: given vertex is not in the boundary of the domain");
+        }
+        return it->second;
     }
     
     // Returns true if given point is an interior point of the domain. The
@@ -270,7 +292,17 @@ private:
         }
     }
     
+    void initVertexMap_() {
+        for(std::size_t polyIdx = 0; polyIdx < boundary_.size(); ++polyIdx) {
+            const std::vector<Point>& poly = boundary_[polyIdx];
+            for(std::size_t vertIdx = 0; vertIdx < poly.size(); ++vertIdx) {
+                vertexMap_[poly[vertIdx]] = {polyIdx, vertIdx};
+            }
+        }
+    }
+    
     std::vector<std::vector<Point>> boundary_;
+    std::unordered_map<Point, std::pair<std::size_t, std::size_t>> vertexMap_;
 };
 
 }
