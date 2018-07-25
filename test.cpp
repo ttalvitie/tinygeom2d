@@ -661,7 +661,7 @@ void test_visibility_hpp() {
     }
     
     // computePointVisibility visible verts and edges vectors sizes match size
-    // function in example domain
+    // function and center is correct in example domain
     {
         Domain domain(exampleBoundary);
         for(int x = -2; x < 12; ++x) {
@@ -671,6 +671,7 @@ void test_visibility_hpp() {
                     continue;
                 }
                 PointVisibility vis = computePointVisibility(domain, center);
+                TEST(vis.center() == center);
                 TEST(vis.verts().size() == vis.size());
                 TEST(vis.edges().size() == vis.size());
             }
@@ -766,7 +767,7 @@ void test_visibility_hpp() {
     }
     
     // computeVertexVisibility verts has exactly one element more than edges
-    // in the example domain
+    // and center is correct in the example domain
     {
         Domain domain(exampleBoundary);
         for(int x = -2; x < 12; ++x) {
@@ -777,6 +778,7 @@ void test_visibility_hpp() {
                 }
                 VertexVisibility vis = computeVertexVisibility(domain, center);
                 TEST(vis.verts().size() == vis.edges().size() + 1);
+                TEST(vis.center() == center);
             }
         }
     }
@@ -877,6 +879,43 @@ void test_visibility_hpp() {
                     TEST(isCCW(center, x, y));
                     TEST(!isCCW(center, a, x));
                     TEST(!isCCW(center, y, b));
+                }
+            }
+        }
+    }
+    
+    // computeAllVertexVisibilities result matches result of multiple
+    // computeVertexVisibility in the example domain
+    {
+        Domain domain(exampleBoundary);
+        for(int x = -2; x < 12; ++x) {
+            for(int y = -2; y < 12; ++y) {
+                Point center(x, y);
+                if(!domain.vertexMap().count(center)) {
+                    continue;
+                }
+                
+                std::vector<VertexVisibility> correct;
+                for(const std::vector<Point>& poly : domain.boundary()) {
+                    for(Point center : poly) {
+                        correct.push_back(computeVertexVisibility(domain, center));
+                    }
+                }
+                
+                std::vector<VertexVisibility> result = computeAllVertexVisibilities(domain);
+                
+                auto cmp = [&](const VertexVisibility& a, const VertexVisibility& b) {
+                    return yCoordLT(a.center(), b.center());
+                };
+                
+                sort(correct.begin(), correct.end(), cmp);
+                sort(result.begin(), result.end(), cmp);
+                
+                TEST(result.size() == correct.size());
+                for(std::size_t i = 0; i < result.size(); ++i) {
+                    TEST(result[i].center() == correct[i].center());
+                    TEST(result[i].verts() == correct[i].verts());
+                    TEST(result[i].edges() == correct[i].edges());
                 }
             }
         }

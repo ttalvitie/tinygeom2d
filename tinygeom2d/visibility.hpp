@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -286,9 +287,9 @@ private:
     friend VertexVisibility computeVertexVisibility(const Domain& domain, Point center);
 };
 
-// Compute the visible vertices and edges in the domain from given vertex of the
-// domain. Throws std::domain_error if the center point is not a vertex of the
-// boundary.
+// Compute the vertices and edges in the domain visible from a given vertex of
+// the domain. Throws std::domain_error if the center point is not a vertex of
+// the boundary.
 inline VertexVisibility computeVertexVisibility(const Domain& domain, Point center) {
     using namespace visibility_detail;
     
@@ -402,6 +403,19 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     // Last vertex is always prev
     ret.verts_.push_back(prev);
     
+    return ret;
+}
+
+// Returns the vector of results of computeVertexVisibility for every vertex of
+// the domain.
+inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain) {
+    std::vector<VertexVisibility> ret;
+    // TODO: dummy implementation, write fast simultaneous sweepray algorithm
+    for(const std::vector<Point>& poly : domain.boundary()) {
+        for(Point center : poly) {
+            ret.push_back(computeVertexVisibility(domain, center));
+        }
+    }
     return ret;
 }
 
