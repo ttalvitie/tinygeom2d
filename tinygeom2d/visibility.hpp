@@ -85,7 +85,7 @@ struct DistLT {
 };
 
 // Is b between a and c in CCW ordered angles around center
-bool anglesOrdered(Point center, Point a, Point b, Point c) {
+inline bool anglesOrdered(Point center, Point a, Point b, Point c) {
     if(angleLT(center, a, center, c)) {
         return angleLT(center, a, center, b) && angleLT(center, b, center, c);
     } else {
