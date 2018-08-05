@@ -907,7 +907,6 @@ void test_visibility_hpp() {
                 auto cmp = [&](const VertexVisibility& a, const VertexVisibility& b) {
                     return yCoordLT(a.center(), b.center());
                 };
-                
                 sort(correct.begin(), correct.end(), cmp);
                 sort(result.begin(), result.end(), cmp);
                 
@@ -918,6 +917,46 @@ void test_visibility_hpp() {
                     TEST(result[i].edges() == correct[i].edges());
                 }
             }
+        }
+    }
+    
+    // computeAllVertexVisibilities works correctly in empty domain
+    {
+        Domain domain;
+        std::vector<VertexVisibility> result = computeAllVertexVisibilities(domain);
+        TEST(result.empty());
+    }
+    
+    // computeAllVertexVisibilities result matches result of multiple
+    // computeVertexVisibility in another handmade example domain
+    {
+        Domain domain({
+            {{2, 2}, {7, 7}, {9, 1}, {14, 3}, {19, 2}, {19, 13}, {15, 16}, {13, 11}, {17, 11}, {17, 9}, {14, 8}, {10, 11}, {11, 16}, {16, 17}, {19, 19}, {1, 17}},
+            {{17, 6}, {18, 10}, {15, 5}, {11, 7}, {9, 11}, {8, 10}, {10, 6}, {15, 4}},
+            {{15, 7}, {16, 7}, {11, 8}},
+            {{15, 12}, {17, 12}, {16, 14}},
+            {{3, 6}, {7, 9}, {4, 11}, {6, 14}, {3, 15}, {6, 17}, {2, 16}, {2, 13}, {5, 14}, {3, 11}, {6, 9}},
+            {{8, 12}, {9, 12}, {10, 13}, {10, 14}, {9, 16}, {8, 16}, {7, 14}, {7, 13}}
+        });
+        std::vector<VertexVisibility> correct;
+        for(const std::vector<Point>& poly : domain.boundary()) {
+            for(Point center : poly) {
+                correct.push_back(computeVertexVisibility(domain, center));
+            }
+        }
+        std::vector<VertexVisibility> result = computeAllVertexVisibilities(domain);
+        
+        auto cmp = [&](const VertexVisibility& a, const VertexVisibility& b) {
+            return yCoordLT(a.center(), b.center());
+        };
+        sort(correct.begin(), correct.end(), cmp);
+        sort(result.begin(), result.end(), cmp);
+        
+        TEST(result.size() == correct.size());
+        for(std::size_t i = 0; i < result.size(); ++i) {
+            TEST(result[i].center() == correct[i].center());
+            TEST(result[i].verts() == correct[i].verts());
+            TEST(result[i].edges() == correct[i].edges());
         }
     }
 }

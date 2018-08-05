@@ -7,8 +7,9 @@
 #include <utility>
 #include <vector>
 
-#include "geometry.hpp"
 #include "domain.hpp"
+#include "geometry.hpp"
+#include "intersection.hpp"
 
 namespace tinygeom2d {
 
@@ -285,6 +286,7 @@ private:
     std::vector<std::pair<Point, Point>> edges_;
     
     friend VertexVisibility computeVertexVisibility(const Domain& domain, Point center);
+    friend std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain);
 };
 
 // Compute the vertices and edges in the domain visible from a given vertex of
@@ -298,7 +300,7 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     
     std::pair<std::size_t, std::size_t> id = domain.vertexID(center);
     
-    const std::vector<Point> centerPoly = domain.boundary()[id.first];
+    const std::vector<Point>& centerPoly = domain.boundary()[id.first];
     Point next = centerPoly[(id.second + 1) % centerPoly.size()];
     Point prev = centerPoly[(id.second + centerPoly.size() - 1) % centerPoly.size()];
     
@@ -354,7 +356,6 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     
     // First vertex is always next
     ret.verts_.push_back(next);
-    if(sweepray.empty()) throw 0;
     ret.edges_.push_back(*sweepray.begin());
     
     // Add new vertex and edge to the output only when we move to a new
@@ -389,9 +390,9 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
         
         // Change sweepray according to the event
         if(event.add) {
-            if(!sweepray.insert(event.edge).second) throw 0;
+            sweepray.insert(event.edge);
         } else {
-            if(!sweepray.erase(event.edge)) throw 0;
+            sweepray.erase(event.edge);
         }
     }
     
@@ -407,15 +408,362 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
 }
 
 // Returns the vector of results of computeVertexVisibility for every vertex of
-// the domain.
+// the domain. The implementation is faster than calling computeVertexVisibility
+// for every vertex separately.
 inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain) {
-    std::vector<VertexVisibility> ret;
-    // TODO: dummy implementation, write fast simultaneous sweepray algorithm
+    // Enumerate vertices, and create doubly linked lists of them along the
+    // domain boundary.
+    std::vector<Point> vertPos;
+    std::vector<std::size_t> prevVertIdx;
+    std::vector<std::size_t> nextVertIdx;
     for(const std::vector<Point>& poly : domain.boundary()) {
-        for(Point center : poly) {
-            ret.push_back(computeVertexVisibility(domain, center));
+        std::size_t prevIdx = vertPos.size() + poly.size() - 1;
+        for(Point pos : poly) {
+            std::size_t idx = vertPos.size();
+            vertPos.push_back(pos);
+            prevVertIdx.push_back(prevIdx);
+            prevIdx = idx;
         }
     }
+    std::size_t vertCount = vertPos.size();
+    nextVertIdx.resize(vertCount);
+    for(std::size_t v = 0; v < vertCount; ++v) {
+        nextVertIdx[prevVertIdx[v]] = v;
+    }
+    
+    // We run a simultaneous ray sweep around every vertex. We only need to
+    // maintain the mapping from each vertex to the edge the ray from that
+    // vertex hits first, and the only possible changes are when two rays
+    // coincide or a ray moves to the next edge.
+    
+    // The current hit edge for each ray. The edge i means edge between vertices
+    // prevVertIdx[i] and i.
+    const std::size_t NoIdx = -1;
+    std::vector<std::size_t> currentEdge(vertCount, NoIdx);
+    
+    // All rays initially point to angle zero, and we use a sweepline algorithm
+    // to determine the initially visible edge for every ray
+    {
+        struct Event {
+            // Events at same position are processed in the enum order
+            enum {DelEdge, Vertex, AddEdge} type;
+            
+            union {
+                std::size_t vertIdx;
+                std::size_t edge;
+            };
+        };
+        std::vector<Event> events;
+        for(std::size_t edge = 0; edge < vertCount; ++edge) {
+            // We only need upward edges
+            if(yCoordLT(vertPos[prevVertIdx[edge]], vertPos[edge])) {
+                events.push_back(Event{Event::AddEdge, edge});
+                events.push_back(Event{Event::DelEdge, edge});
+            }
+        }
+        for(std::size_t v = 0; v < vertCount; ++v) {
+            // Only add vertices for which the ray to angle zero is not blocked
+            if(angleLT(
+                vertPos[v],
+                vertPos[prevVertIdx[v]],
+                vertPos[v],
+                vertPos[nextVertIdx[v]]
+            )) {
+                events.push_back(Event{Event::Vertex, v});
+            }
+        }
+        
+        auto eventPos = [&](Event e) {
+            switch(e.type) {
+                case Event::Vertex: return vertPos[e.vertIdx];
+                case Event::AddEdge: return vertPos[prevVertIdx[e.edge]];
+                case Event::DelEdge: return vertPos[e.edge];
+                default: return Point(); // Never happens
+            }
+        };
+        
+        std::sort(events.begin(), events.end(), [&](Event a, Event b) {
+            Point aPos = eventPos(a);
+            Point bPos = eventPos(b);
+            
+            if(aPos == bPos) {
+                // Respect Event::type ordering
+                return (int)a.type < (int)b.type;
+            } else {
+                return yCoordLT(aPos, bPos);
+            }
+        });
+        
+        auto leftOf = [&](std::size_t edge1, std::size_t edge2) {
+            Point a1 = vertPos[prevVertIdx[edge1]];
+            Point b1 = vertPos[edge1];
+            Point a2 = vertPos[prevVertIdx[edge2]];
+            Point b2 = vertPos[edge2];
+            if(yCoordLT(b1, a1)) {
+                std::swap(a1, b1);
+            }
+            if(yCoordLT(b2, a2)) {
+                std::swap(a2, b2);
+            }
+            return segmentLeftOfAtBottom({a1, b1}, {a2, b2});
+        };
+        std::set<std::size_t, decltype(leftOf)> sweepline(leftOf);
+        for(Event event : events) {
+            switch(event.type) {
+                case Event::AddEdge: {
+                    sweepline.insert(event.edge);
+                } break;
+                
+                case Event::DelEdge: {
+                    sweepline.erase(event.edge);
+                } break;
+                
+                case Event::Vertex: {
+                    auto it = sweepline.lower_bound(event.vertIdx);
+                    if(it != sweepline.end()) {
+                        currentEdge[event.vertIdx] = *it;
+                    }
+                } break;
+            };
+        }
+    }
+    
+    // As we simultaneously rotate the rays centered at each vertex, we maintain
+    // a set of events of the ray changes ordered by the ray angle at which the
+    // event happens
+    struct Event {
+        enum {
+            AddRay, // The ray becomes unblocked
+            EdgeEnds, // The ray reaches the endpoint of the current edge
+            Overtake, // The ray overtakes the next ray on the same edge
+        } type;
+        
+        // The center vertex of the event ray
+        std::size_t center;
+        
+        // Angle of the ray at which the event occurs
+        std::pair<Point, Point> angle;
+        
+        // It can be proven that there is only one possible event for every
+        // angle
+        bool operator<(const Event& o) const {
+            return angleLT(angle.first, angle.second, o.angle.first, o.angle.second);
+        }
+    };
+    std::set<Event> events;
+    
+    // Add all AddRay events in advance
+    for(std::size_t v = 0; v < vertCount; ++v) {
+        events.insert({Event::AddRay, v, {vertPos[v], vertPos[nextVertIdx[v]]}});
+    }
+    
+    // For every edge, a doubly linked list of rays such that the edge is
+    // currentEdge[ray]. Ordered by the position of the ray along the edge
+    std::vector<std::size_t> rayListFirst(vertCount, NoIdx); // by edge]
+    std::vector<std::size_t> rayListPrev(vertCount, NoIdx); // by vertex idx
+    std::vector<std::size_t> rayListNext(vertCount, NoIdx); // by vertex idx
+    
+    // Fill the linked lists
+    {
+        std::vector<std::size_t> order(vertCount);
+        for(std::size_t v = 0; v < vertCount; ++v) {
+            order[v] = v;
+        }
+        sort(order.begin(), order.end(), [&](std::size_t a, std::size_t b) {
+            return yCoordLT(vertPos[b], vertPos[a]);
+        });
+        for(std::size_t v : order) {
+            std::size_t edge = currentEdge[v];
+            if(edge != NoIdx) {
+                std::size_t& first = rayListFirst[edge];
+                if(first != NoIdx) {
+                    rayListNext[v] = first;
+                    rayListPrev[first] = v;
+                }
+                first = v;
+            }
+        }
+    }
+    
+    // Get the next event for ray from v. Returns pair (has event, next event)
+    auto nextEvent = [&](std::size_t v) -> std::pair<bool, Event> {
+        if(currentEdge[v] == NoIdx) {
+            return {false, {}};
+        }
+        if(rayListNext[v] == NoIdx) {
+            return {true, Event{
+                Event::EdgeEnds, v,
+                {vertPos[v], vertPos[currentEdge[v]]}
+            }};
+        } else {
+            bool hasEvent = isCCW(
+                vertPos[v],
+                vertPos[rayListNext[v]],
+                vertPos[currentEdge[v]]
+            );
+            return {hasEvent, Event{
+                Event::Overtake, v,
+                {vertPos[v], vertPos[rayListNext[v]]}
+            }};
+        }
+    };
+    
+    // We only add events that have angle larger than the previous event angle,
+    // so that the rotation goes forward
+    std::pair<Point, Point> prevEventAngle;
+    bool hasPrevEvent = false;
+    
+    auto addNextEvent = [&](std::size_t v) {
+        std::pair<bool, Event> p = nextEvent(v);
+        if(p.first && (
+            !hasPrevEvent ||
+            angleLT(
+                prevEventAngle.first, prevEventAngle.second,
+                p.second.angle.first, p.second.angle.second
+            )
+        )) {
+            events.insert(p.second);
+        }
+    };
+    auto delNextEvent = [&](std::size_t v) {
+        std::pair<bool, Event> p = nextEvent(v);
+        if(p.first) {
+            events.erase(p.second);
+        }
+    };
+    
+    // Prepopulate next events for all rays
+    for(std::size_t v = 0; v < vertCount; ++v) {
+        addNextEvent(v);
+    }
+    
+    // Special case: empty domain
+    if(events.empty()) {
+        return std::vector<VertexVisibility>();
+    }
+    
+    // Convenience functions for modifying ray linked lists
+    auto addRayAfter = [&](std::size_t v, std::size_t x) {
+        delNextEvent(x);
+        currentEdge[v] = currentEdge[x];
+        rayListPrev[v] = x;
+        rayListNext[v] = rayListNext[x];
+        rayListNext[x] = v;
+        if(rayListNext[v] != NoIdx) {
+            rayListPrev[rayListNext[v]] = v;
+        }
+        addNextEvent(x);
+        addNextEvent(v);
+    };
+    auto addRayFirst = [&](std::size_t v, std::size_t edge) {
+        currentEdge[v] = edge;
+        std::size_t& first = rayListFirst[edge];
+        if(first != NoIdx) {
+            rayListPrev[first] = v;
+        }
+        rayListNext[v] = first;
+        rayListPrev[v] = NoIdx;
+        first = v;
+        addNextEvent(v);
+    };
+    auto delRay = [&](std::size_t v) {
+        delNextEvent(v);
+        std::size_t prev = rayListPrev[v];
+        if(prev == NoIdx) {
+            rayListFirst[currentEdge[v]] = rayListNext[v];
+            if(rayListNext[v] != NoIdx) {
+                rayListPrev[rayListNext[v]] = NoIdx;
+            }
+        } else {
+            delNextEvent(prev);
+            rayListNext[prev] = rayListNext[v];
+            if(rayListNext[v] != NoIdx) {
+                rayListPrev[rayListNext[v]] = prev;
+            }
+            addNextEvent(prev);
+        }
+        currentEdge[v] = NoIdx;
+    };
+    
+    // Handle events in order, and collect seen edge-vertex-pairs
+    std::vector<
+        std::vector<std::pair<std::size_t, std::size_t>>
+    > edgeVertPairs(vertCount);
+    while(!events.empty()) {
+        Event event = *events.begin();
+        events.erase(events.begin());
+        
+        prevEventAngle = event.angle;
+        hasPrevEvent = true;
+        
+        std::size_t v = event.center;
+        
+        switch(event.type) {
+            case Event::AddRay: {
+                std::size_t x = nextVertIdx[v];
+                edgeVertPairs[v].emplace_back(NoIdx, x);
+                if(currentEdge[x] == NoIdx) {
+                    addRayFirst(v, nextVertIdx[x]);
+                } else {
+                    addRayAfter(v, x);
+                }
+            } break;
+            
+            case Event::EdgeEnds: {
+                std::size_t x = currentEdge[v];
+                edgeVertPairs[v].emplace_back(x, x);
+                delRay(v);
+                if(currentEdge[x] == NoIdx) {
+                    std::size_t y = nextVertIdx[x];
+                    if(y != v) {
+                        addRayFirst(v, y);
+                    }
+                } else {
+                    if(x != prevVertIdx[v]) {
+                        addRayAfter(v, x);
+                    }
+                }
+            } break;
+            
+            case Event::Overtake: {
+                std::size_t x = rayListNext[v];
+                edgeVertPairs[v].emplace_back(currentEdge[v], x);
+                delRay(v);
+                if(x != prevVertIdx[v]) {
+                    addRayFirst(v, nextVertIdx[x]);
+                }
+            } break;
+        }
+    }
+    
+    std::vector<VertexVisibility> ret(vertCount, VertexVisibility());
+    for(std::size_t v = 0; v < vertCount; ++v) {
+        ret[v].center_ = vertPos[v];
+        
+        // Put the values in edgeVertPairs to ret such that the edge marked by
+        // NoIdx is between the end and the beginning in the verts and edges
+        // arrays
+        std::size_t z = 0;
+        while(edgeVertPairs[v][z].first != NoIdx) {
+            ++z;
+        }
+        
+        for(std::size_t i = z; i < edgeVertPairs[v].size(); ++i) {
+            ret[v].verts_.push_back(vertPos[edgeVertPairs[v][i].second]);
+        }
+        for(std::size_t i = 0; i < z; ++i) {
+            ret[v].verts_.push_back(vertPos[edgeVertPairs[v][i].second]);
+        }
+        for(std::size_t i = z + 1; i < edgeVertPairs[v].size(); ++i) {
+            std::size_t edge = edgeVertPairs[v][i].first;
+            ret[v].edges_.emplace_back(vertPos[prevVertIdx[edge]], vertPos[edge]);
+        }
+        for(std::size_t i = 0; i < z; ++i) {
+            std::size_t edge = edgeVertPairs[v][i].first;
+            ret[v].edges_.emplace_back(vertPos[prevVertIdx[edge]], vertPos[edge]);
+        }
+    }
+    
     return ret;
 }
 
