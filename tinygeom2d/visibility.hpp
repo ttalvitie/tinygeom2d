@@ -98,45 +98,24 @@ inline bool anglesOrdered(Point center, Point a, Point b, Point c) {
 }
 
 // The visibile vertices and edges of a domain from a center point inside the
-// domain.
-class PointVisibility {
-public:
+// domain, computed by computePointVisibility.
+struct PointVisibility {
     // The center point, i.e. the point for which the visible vertices and edges
     // are given in this structure.
-    Point center() const {
-        return center_;
-    }
+    Point center;
     
     // The vertices visible from the center, ordered by angle (in the sense of
     // angleLT).
-    const std::vector<Point>& verts() const {
-        return verts_;
-    }
+    std::vector<Point> verts;
     
     // The parts of edges visible from the center. The edges are ordered such
     // that the visible part of edges()[i] is between vertices verts()[i] and
-    // verts()[i + 1] (or verts()[0] if i + 1 == size()) when looking from
+    // verts()[i + 1] (or verts()[0] if i + 1 == verts.size()) when looking from
     // center(). Note that the endpoints of a visible edge are not always
     // visible - the edge may be behind the limiting vertices verts()[i]
     // and verts()[i + 1]. Each edge (a, b) is ordered such that (center, a, b)
     // is CCW oriented, and a appears before b in the boundary of the domain.
-    const std::vector<std::pair<Point, Point>>& edges() const {
-        return edges_;
-    }
-    
-    // The number of both vertices and parts of edges visible from the center.
-    std::size_t size() const {
-        return verts_.size();
-    }
-    
-private:
-    PointVisibility() { }
-    
-    Point center_;
-    std::vector<Point> verts_;
-    std::vector<std::pair<Point, Point>> edges_;
-    
-    friend PointVisibility computePointVisibility(const Domain& domain, Point center);
+    std::vector<std::pair<Point, Point>> edges;
 };
 
 // Compute the visible vertices and edges in the domain from given center point
@@ -150,7 +129,7 @@ inline PointVisibility computePointVisibility(const Domain& domain, Point center
         "point of the domain";
     
     PointVisibility ret;
-    ret.center_ = center;
+    ret.center = center;
     
     // We do a rotational ray sweep around the center, maintaining the set of
     // edges intersecting the ray ordered by distance
@@ -210,8 +189,8 @@ inline PointVisibility computePointVisibility(const Domain& domain, Point center
     bool hasPrevFrontVertex = false;
     Point prevFrontVertex;
     auto addVisibility = [&]() {
-        ret.verts_.push_back(prevFrontVertex);
-        ret.edges_.push_back(*sweepray.begin());
+        ret.verts.push_back(prevFrontVertex);
+        ret.edges.push_back(*sweepray.begin());
     };
     
     // Rotate the sweepray, handling the edge add and del events
@@ -249,22 +228,18 @@ inline PointVisibility computePointVisibility(const Domain& domain, Point center
 }
 
 // The visibile vertices and edges of a domain from a center vertex in the
-// boundary of the domain.
-class VertexVisibility {
-public:
+// boundary of the domain, computed by computeVertexVisibility or
+// computeAllVertexVisibilities.
+struct VertexVisibility {
     // The center vertex, i.e. the vertex for which the visible vertices and
     // edges are given in this structure.
-    Point center() const {
-        return center_;
-    }
+    Point center;
     
     // The vertices visible from the center, in CCW order around the center.
     // The first and last vertices are always the next and previous vertices
     // from the center in the boundary polygon, respectively. The center vertex
     // is not listed as visible.
-    const std::vector<Point>& verts() const {
-        return verts_;
-    }
+    std::vector<Point> verts;
     
     // The parts of edges visible from the center. The edges are ordered such
     // that the visible part of edges()[i] is between vertices verts()[i] and
@@ -272,21 +247,9 @@ public:
     // visible edge are not always visible - the edge may be behind the limiting
     // vertices verts()[i] and verts()[i + 1]. Each edge (a, b) is ordered such
     // that (center, a, b) is CCW oriented, and a appears before b in the
-    // boundary of the domain. There is always one less elements in edges()
-    // than in verts().
-    const std::vector<std::pair<Point, Point>>& edges() const {
-        return edges_;
-    }
-    
-private:
-    VertexVisibility() { }
-    
-    Point center_;
-    std::vector<Point> verts_;
-    std::vector<std::pair<Point, Point>> edges_;
-    
-    friend VertexVisibility computeVertexVisibility(const Domain& domain, Point center);
-    friend std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain);
+    // boundary of the domain. There is always one less elements in edges than
+    // in verts.
+    std::vector<std::pair<Point, Point>> edges;
 };
 
 // Compute the vertices and edges in the domain visible from a given vertex of
@@ -296,7 +259,7 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     using namespace visibility_detail;
     
     VertexVisibility ret;
-    ret.center_ = center;
+    ret.center = center;
     
     std::pair<std::size_t, std::size_t> id = domain.vertexID(center);
     
@@ -355,8 +318,8 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     }
     
     // First vertex is always next
-    ret.verts_.push_back(next);
-    ret.edges_.push_back(*sweepray.begin());
+    ret.verts.push_back(next);
+    ret.edges.push_back(*sweepray.begin());
     
     // Add new vertex and edge to the output only when we move to a new
     // frontmost vertex, in order to not see through vertices between their
@@ -364,8 +327,8 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     bool hasPrevFrontVertex = false;
     Point prevFrontVertex;
     auto addVisibility = [&]() {
-        ret.verts_.push_back(prevFrontVertex);
-        ret.edges_.push_back(*sweepray.begin());
+        ret.verts.push_back(prevFrontVertex);
+        ret.edges.push_back(*sweepray.begin());
     };
     
     // Rotate the sweepray, handling the edge add and del events
@@ -402,7 +365,7 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     }
     
     // Last vertex is always prev
-    ret.verts_.push_back(prev);
+    ret.verts.push_back(prev);
     
     return ret;
 }
@@ -736,9 +699,9 @@ inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& 
         }
     }
     
-    std::vector<VertexVisibility> ret(vertCount, VertexVisibility());
+    std::vector<VertexVisibility> ret(vertCount);
     for(std::size_t v = 0; v < vertCount; ++v) {
-        ret[v].center_ = vertPos[v];
+        ret[v].center = vertPos[v];
         
         // Put the values in edgeVertPairs to ret such that the edge marked by
         // NoIdx is between the end and the beginning in the verts and edges
@@ -749,18 +712,18 @@ inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& 
         }
         
         for(std::size_t i = z; i < edgeVertPairs[v].size(); ++i) {
-            ret[v].verts_.push_back(vertPos[edgeVertPairs[v][i].second]);
+            ret[v].verts.push_back(vertPos[edgeVertPairs[v][i].second]);
         }
         for(std::size_t i = 0; i < z; ++i) {
-            ret[v].verts_.push_back(vertPos[edgeVertPairs[v][i].second]);
+            ret[v].verts.push_back(vertPos[edgeVertPairs[v][i].second]);
         }
         for(std::size_t i = z + 1; i < edgeVertPairs[v].size(); ++i) {
             std::size_t edge = edgeVertPairs[v][i].first;
-            ret[v].edges_.emplace_back(vertPos[prevVertIdx[edge]], vertPos[edge]);
+            ret[v].edges.emplace_back(vertPos[prevVertIdx[edge]], vertPos[edge]);
         }
         for(std::size_t i = 0; i < z; ++i) {
             std::size_t edge = edgeVertPairs[v][i].first;
-            ret[v].edges_.emplace_back(vertPos[prevVertIdx[edge]], vertPos[edge]);
+            ret[v].edges.emplace_back(vertPos[prevVertIdx[edge]], vertPos[edge]);
         }
     }
     

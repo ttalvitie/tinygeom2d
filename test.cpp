@@ -660,8 +660,8 @@ void test_visibility_hpp() {
         }
     }
     
-    // computePointVisibility visible verts and edges vectors sizes match size
-    // function and center is correct in example domain
+    // computePointVisibility visible verts and edges vectors have the same size
+    // and center is correct in example domain
     {
         Domain domain(exampleBoundary);
         for(int x = -2; x < 12; ++x) {
@@ -671,9 +671,8 @@ void test_visibility_hpp() {
                     continue;
                 }
                 PointVisibility vis = computePointVisibility(domain, center);
-                TEST(vis.center() == center);
-                TEST(vis.verts().size() == vis.size());
-                TEST(vis.edges().size() == vis.size());
+                TEST(vis.center == center);
+                TEST(vis.verts.size() == vis.edges.size());
             }
         }
     }
@@ -716,7 +715,7 @@ void test_visibility_hpp() {
                 });
                 
                 PointVisibility vis = computePointVisibility(domain, center);
-                TEST(vis.verts() == correct);
+                TEST(vis.verts == correct);
             }
         }
     }
@@ -734,11 +733,11 @@ void test_visibility_hpp() {
                 
                 PointVisibility vis = computePointVisibility(domain, center);
                 
-                for(std::size_t i = 0; i < vis.size(); ++i) {
-                    Point a = vis.verts()[i];
-                    Point b = vis.verts()[(i + 1) % vis.size()];
+                for(std::size_t i = 0; i < vis.verts.size(); ++i) {
+                    Point a = vis.verts[i];
+                    Point b = vis.verts[(i + 1) % vis.verts.size()];
                     Point x, y;
-                    std::tie(x, y) = vis.edges()[i];
+                    std::tie(x, y) = vis.edges[i];
                     
                     TEST(isCCW(center, x, y));
                     TEST(!isCCW(center, a, x));
@@ -777,8 +776,8 @@ void test_visibility_hpp() {
                     continue;
                 }
                 VertexVisibility vis = computeVertexVisibility(domain, center);
-                TEST(vis.verts().size() == vis.edges().size() + 1);
-                TEST(vis.center() == center);
+                TEST(vis.verts.size() == vis.edges.size() + 1);
+                TEST(vis.center == center);
             }
         }
     }
@@ -794,8 +793,8 @@ void test_visibility_hpp() {
                 }
                 
                 VertexVisibility vis = computeVertexVisibility(domain, center);
-                for(std::size_t i = 1; i < vis.verts().size(); ++i) {
-                    TEST(isCCW(center, vis.verts()[i - 1], vis.verts()[i]));
+                for(std::size_t i = 1; i < vis.verts.size(); ++i) {
+                    TEST(isCCW(center, vis.verts[i - 1], vis.verts[i]));
                 }
             }
         }
@@ -847,7 +846,7 @@ void test_visibility_hpp() {
                 }
                 
                 VertexVisibility vis = computeVertexVisibility(domain, center);
-                std::vector<Point> result = vis.verts();
+                std::vector<Point> result = vis.verts;
                 
                 sort(correct.begin(), correct.end(), yCoordLT);
                 sort(result.begin(), result.end(), yCoordLT);
@@ -870,11 +869,11 @@ void test_visibility_hpp() {
                 
                 VertexVisibility vis = computeVertexVisibility(domain, center);
                 
-                for(std::size_t i = 0; i < vis.edges().size(); ++i) {
-                    Point a = vis.verts()[i];
-                    Point b = vis.verts()[i + 1];
+                for(std::size_t i = 0; i < vis.edges.size(); ++i) {
+                    Point a = vis.verts[i];
+                    Point b = vis.verts[i + 1];
                     Point x, y;
-                    std::tie(x, y) = vis.edges()[i];
+                    std::tie(x, y) = vis.edges[i];
                     
                     TEST(isCCW(center, x, y));
                     TEST(!isCCW(center, a, x));
@@ -905,16 +904,16 @@ void test_visibility_hpp() {
                 std::vector<VertexVisibility> result = computeAllVertexVisibilities(domain);
                 
                 auto cmp = [&](const VertexVisibility& a, const VertexVisibility& b) {
-                    return yCoordLT(a.center(), b.center());
+                    return yCoordLT(a.center, b.center);
                 };
                 sort(correct.begin(), correct.end(), cmp);
                 sort(result.begin(), result.end(), cmp);
                 
                 TEST(result.size() == correct.size());
                 for(std::size_t i = 0; i < result.size(); ++i) {
-                    TEST(result[i].center() == correct[i].center());
-                    TEST(result[i].verts() == correct[i].verts());
-                    TEST(result[i].edges() == correct[i].edges());
+                    TEST(result[i].center == correct[i].center);
+                    TEST(result[i].verts == correct[i].verts);
+                    TEST(result[i].edges == correct[i].edges);
                 }
             }
         }
@@ -947,16 +946,16 @@ void test_visibility_hpp() {
         std::vector<VertexVisibility> result = computeAllVertexVisibilities(domain);
         
         auto cmp = [&](const VertexVisibility& a, const VertexVisibility& b) {
-            return yCoordLT(a.center(), b.center());
+            return yCoordLT(a.center, b.center);
         };
         sort(correct.begin(), correct.end(), cmp);
         sort(result.begin(), result.end(), cmp);
         
         TEST(result.size() == correct.size());
         for(std::size_t i = 0; i < result.size(); ++i) {
-            TEST(result[i].center() == correct[i].center());
-            TEST(result[i].verts() == correct[i].verts());
-            TEST(result[i].edges() == correct[i].edges());
+            TEST(result[i].center == correct[i].center);
+            TEST(result[i].verts == correct[i].verts);
+            TEST(result[i].edges == correct[i].edges);
         }
     }
 }
