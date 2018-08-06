@@ -119,7 +119,9 @@ struct PointVisibility {
 
 // Compute the visible vertices and edges in the domain from given center point
 // in the interior of the domain, i.e. domain.isInteriorPoint(center) returns
-// true.  Throws std::domain_error if the center point is not in the interior.
+// true.
+// Throws std::domain_error if the center point is not in the interior.
+// Time complexity: O(n log n), where n = domain boundary size.
 inline PointVisibility computePointVisibility(const Domain& domain, Point center) {
     using namespace visibility_detail;
     
@@ -253,7 +255,8 @@ struct VertexVisibility {
 
 // Compute the vertices and edges in the domain visible from a given vertex of
 // the domain. Throws std::domain_error if the center point is not a vertex of
-// the boundary.
+// the domain boundary.
+// Time complexity: O(n log n), where n = domain boundary size.
 inline VertexVisibility computeVertexVisibility(const Domain& domain, Point center) {
     using namespace visibility_detail;
     
@@ -372,6 +375,7 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
 // Returns the vector of results of computeVertexVisibility for every vertex of
 // the domain. The implementation is faster than calling computeVertexVisibility
 // for every vertex separately.
+// Time complexity: O(k log n), where k = output size, n = domain boundary size.
 inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain) {
     // Enumerate vertices, and create doubly linked lists of them along the
     // domain boundary.

@@ -11,8 +11,8 @@ Tiny 2D geometry library
 
 headers = [
     ("geometry.hpp", "Geometry primitives"),
-    ("domain.hpp", "Polygonal domains"),
     ("intersection.hpp", "Intersection detection"),
+    ("domain.hpp", "Polygonal domains"),
     ("visibility.hpp", "Visibility computations"),
     ("int64.hpp", "Portable 64-bit integer multiplication comparison"),
 ]

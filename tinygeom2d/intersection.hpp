@@ -54,6 +54,7 @@ inline bool intersects(Point a, Point b, Point c, Point d) {
 
 // Returns true if two segments among given segments intersect as defined for
 // intersects(a, b, c, d).
+// Time complexity: O(n log n), where n = input size.
 inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
     typedef std::pair<Point, Point> Segment;
     

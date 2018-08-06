@@ -66,6 +66,22 @@ struct hash<tinygeom2d::Point> {
 };
 }
 ```
+### intersection.hpp: Intersection detection
+```c++
+namespace tinygeom2d {
+
+// Returns true if the interiors of the segments a-b and c-d intersect, i.e.,
+// there is a point that is on both segments that is not an endpoint of one of
+// the segments.
+bool intersects(Point a, Point b, Point c, Point d);
+
+// Returns true if two segments among given segments intersect as defined for
+// intersects(a, b, c, d).
+// Time complexity: O(n log n), where n = input size.
+bool intersects(std::vector<std::pair<Point, Point>> segments);
+
+}
+```
 ### domain.hpp: Polygonal domains
 ```c++
 namespace tinygeom2d {
@@ -83,6 +99,7 @@ public:
     // boundary, and boundary edges may not intersect each other. Each boundary
     // polygon must contain at least three vertices.
     // Throws std::invalid_argument if the boundary is invalid.
+    // Time complexity: O(n log n), where n = input size.
     Domain(std::vector<std::vector<Point>> boundary);
 
     // Returns the boundary polygons of the domain. The polygons are oriented
@@ -110,24 +127,10 @@ public:
 
     // Returns true if given point is an interior point of the domain. The
     // vertices of the domain do not count as interior points.
+    // Time complexity: O(n), where n = boundary size.
     bool isInteriorPoint(Point point) const;
 
 };
-
-}
-```
-### intersection.hpp: Intersection detection
-```c++
-namespace tinygeom2d {
-
-// Returns true if the interiors of the segments a-b and c-d intersect, i.e.,
-// there is a point that is on both segments that is not an endpoint of one of
-// the segments.
-bool intersects(Point a, Point b, Point c, Point d);
-
-// Returns true if two segments among given segments intersect as defined for
-// intersects(a, b, c, d).
-bool intersects(std::vector<std::pair<Point, Point>> segments);
 
 }
 ```
@@ -158,7 +161,9 @@ struct PointVisibility {
 
 // Compute the visible vertices and edges in the domain from given center point
 // in the interior of the domain, i.e. domain.isInteriorPoint(center) returns
-// true.  Throws std::domain_error if the center point is not in the interior.
+// true.
+// Throws std::domain_error if the center point is not in the interior.
+// Time complexity: O(n log n), where n = domain boundary size.
 PointVisibility computePointVisibility(const Domain& domain, Point center);
 
 // The visibile vertices and edges of a domain from a center vertex in the
@@ -188,12 +193,14 @@ struct VertexVisibility {
 
 // Compute the vertices and edges in the domain visible from a given vertex of
 // the domain. Throws std::domain_error if the center point is not a vertex of
-// the boundary.
+// the domain boundary.
+// Time complexity: O(n log n), where n = domain boundary size.
 VertexVisibility computeVertexVisibility(const Domain& domain, Point center);
 
 // Returns the vector of results of computeVertexVisibility for every vertex of
 // the domain. The implementation is faster than calling computeVertexVisibility
 // for every vertex separately.
+// Time complexity: O(k log n), where k = output size, n = domain boundary size.
 std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain);
 
 }

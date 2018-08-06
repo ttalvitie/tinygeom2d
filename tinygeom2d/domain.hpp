@@ -27,6 +27,7 @@ public:
     // boundary, and boundary edges may not intersect each other. Each boundary
     // polygon must contain at least three vertices.
     // Throws std::invalid_argument if the boundary is invalid.
+    // Time complexity: O(n log n), where n = input size.
     Domain(std::vector<std::vector<Point>> boundary)
         : boundary_(std::move(boundary))
     {
@@ -103,6 +104,7 @@ public:
     
     // Returns true if given point is an interior point of the domain. The
     // vertices of the domain do not count as interior points.
+    // Time complexity: O(n), where n = boundary size.
     bool isInteriorPoint(Point point) const {
         // Check whether the number of edges that the ray shot from point to
         // the left is odd.
