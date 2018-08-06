@@ -247,6 +247,9 @@ public:
     // its length should be optimal within floating point accuracy.
     // Throws std::domain_error if a or b is not an interior point of the
     // domain.
+    // Time complexity: O(n log n + a log n), where n is the size of the domain
+    // boundary and a is the number of visibility graph edges expanded by A*
+    // (worst case bound a = O(n^2), very pessimistic in most cases).
     typedef std::pair<std::vector<Point>, double> PathResult;
     PathResult findShortestPath(Point a, Point b) const;
 
