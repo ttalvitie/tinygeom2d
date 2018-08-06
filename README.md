@@ -13,7 +13,7 @@ const int64_t MinCoord = -((int64_t)1 << 62);
 const int64_t MaxCoord = ((int64_t)1 << 62) - 1;
 
 // The type used for points. Points are specified using their x- and
-// y-coordinates (for example, x is oriented rightwards and y is oriented
+// y-coordinates (positive x-axis points rightwards and positive y-axis points
 // upwards).
 struct Point {
     // Construct point (0, 0).
