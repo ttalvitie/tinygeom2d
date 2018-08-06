@@ -14,6 +14,7 @@ headers = [
     ("intersection.hpp", "Intersection detection"),
     ("domain.hpp", "Polygonal domains"),
     ("visibility.hpp", "Visibility computations"),
+    ("shortestpath.hpp", "Shortest path computations"),
     ("int64.hpp", "Portable 64-bit integer multiplication comparison"),
 ]
 

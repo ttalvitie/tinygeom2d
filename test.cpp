@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <random>
 #include <stdexcept>
 #include <tuple>
@@ -12,6 +13,7 @@
 #include "tinygeom2d/intersection.hpp"
 #include "tinygeom2d/domain.hpp"
 #include "tinygeom2d/visibility.hpp"
+#include "tinygeom2d/shortestpath.hpp"
 
 using namespace tinygeom2d;
 
@@ -441,6 +443,16 @@ const std::vector<std::vector<Point>> exampleBoundary = {
     {{2, 7}, {2, 8}, {3, 8}, {4, 8}, {3, 7}}
 };
 
+// Another example boundary (not oriented correctly)
+const std::vector<std::vector<Point>> exampleBoundary2 = {
+    {{2, 2}, {7, 7}, {9, 1}, {14, 3}, {19, 2}, {19, 13}, {15, 16}, {13, 11}, {17, 11}, {17, 9}, {14, 8}, {10, 11}, {11, 16}, {16, 17}, {19, 19}, {1, 17}},
+    {{17, 6}, {18, 10}, {15, 5}, {11, 7}, {9, 11}, {8, 10}, {10, 6}, {15, 4}},
+    {{15, 7}, {16, 7}, {11, 8}},
+    {{15, 12}, {17, 12}, {16, 14}},
+    {{3, 6}, {7, 9}, {4, 11}, {6, 14}, {3, 15}, {6, 17}, {2, 16}, {2, 13}, {5, 14}, {3, 11}, {6, 9}},
+    {{8, 12}, {9, 12}, {10, 13}, {10, 14}, {9, 16}, {8, 16}, {7, 14}, {7, 13}}
+};
+
 void test_domain_hpp() {
     // Example with randomized orientations is oriented correctly
     {
@@ -544,6 +556,21 @@ void test_domain_hpp() {
                     }
                     TEST(throws);
                 }
+            }
+        }
+    }
+    
+    // prevVertex and nextVertex work correctly in example domain
+    {
+        Domain domain(exampleBoundary);
+        for(const std::vector<Point>& poly : domain.boundary()) {
+            Point a = poly[poly.size() - 2];
+            Point b = poly.back();
+            for(Point c : poly) {
+                TEST(domain.nextVertex(b) == c);
+                TEST(domain.prevVertex(b) == a);
+                a = b;
+                b = c;
             }
         }
     }
@@ -929,16 +956,9 @@ void test_visibility_hpp() {
     }
     
     // computeAllVertexVisibilities result matches result of multiple
-    // computeVertexVisibility in another handmade example domain
+    // computeVertexVisibility in example domain 2
     {
-        Domain domain({
-            {{2, 2}, {7, 7}, {9, 1}, {14, 3}, {19, 2}, {19, 13}, {15, 16}, {13, 11}, {17, 11}, {17, 9}, {14, 8}, {10, 11}, {11, 16}, {16, 17}, {19, 19}, {1, 17}},
-            {{17, 6}, {18, 10}, {15, 5}, {11, 7}, {9, 11}, {8, 10}, {10, 6}, {15, 4}},
-            {{15, 7}, {16, 7}, {11, 8}},
-            {{15, 12}, {17, 12}, {16, 14}},
-            {{3, 6}, {7, 9}, {4, 11}, {6, 14}, {3, 15}, {6, 17}, {2, 16}, {2, 13}, {5, 14}, {3, 11}, {6, 9}},
-            {{8, 12}, {9, 12}, {10, 13}, {10, 14}, {9, 16}, {8, 16}, {7, 14}, {7, 13}}
-        });
+        Domain domain(exampleBoundary2);
         std::vector<VertexVisibility> correct;
         for(const std::vector<Point>& poly : domain.boundary()) {
             for(Point center : poly) {
@@ -962,12 +982,209 @@ void test_visibility_hpp() {
     }
 }
 
+std::vector<Point> interiorPoints(const Domain& domain) {
+    int64_t minX = MaxCoord;
+    int64_t maxX = MinCoord;
+    int64_t minY = MaxCoord;
+    int64_t maxY = MinCoord;
+    for(const std::vector<Point>& poly : domain.boundary()) {
+        for(Point vertex : poly) {
+            minX = std::min(minX, vertex.x);
+            maxX = std::max(maxX, vertex.x);
+            minY = std::min(minY, vertex.y);
+            maxY = std::max(maxY, vertex.y);
+        }
+    }
+    std::vector<Point> ret;
+    for(int64_t x = minX + 1; x < maxX; ++x) {
+        for(int64_t y = minY + 1; y < maxY; ++y) {
+            Point p(x, y);
+            if(domain.isInteriorPoint(p)) {
+                ret.push_back(p);
+            }
+        }
+    }
+    return ret;
+}
+std::vector<Point> nonInteriorPoints(const Domain& domain) {
+    int64_t minX = MaxCoord;
+    int64_t maxX = MinCoord;
+    int64_t minY = MaxCoord;
+    int64_t maxY = MinCoord;
+    for(const std::vector<Point>& poly : domain.boundary()) {
+        for(Point vertex : poly) {
+            minX = std::min(minX, vertex.x);
+            maxX = std::max(maxX, vertex.x);
+            minY = std::min(minY, vertex.y);
+            maxY = std::max(maxY, vertex.y);
+        }
+    }
+    std::vector<Point> ret;
+    for(int64_t x = minX; x <= maxX; ++x) {
+        for(int64_t y = minY; y <= maxY; ++y) {
+            Point p(x, y);
+            if(!domain.isInteriorPoint(p)) {
+                ret.push_back(p);
+            }
+        }
+    }
+    return ret;
+}
+
+void test_shortestpath_hpp() {
+    // Example boundaries for shortest path computations
+    std::vector<std::vector<std::vector<Point>>> spExampleBoundaries;
+    spExampleBoundaries.push_back(exampleBoundary);
+    spExampleBoundaries.push_back(exampleBoundary2);
+    for(auto& a : spExampleBoundaries) {
+        for(auto& b : a) {
+            for(Point& p : b) {
+                p.x *= 5;
+                p.y *= 5;
+            }
+        }
+    }
+    
+    // findShortestPath returned path and path length match and path begins
+    // ands ends in correct vertices, does not repeat any elements, and the
+    // vertices between endpoints are vertices of the domain
+    for(const std::vector<std::vector<Point>>& boundary : spExampleBoundaries) {
+        Domain domain(boundary);
+        ShortestPathContext sp(domain);
+        std::vector<Point> pts = interiorPoints(domain);
+        for(int t = 0; t < 100; ++t) {
+            Point a = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            Point b = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            std::vector<Point> path;
+            double length;
+            std::tie(path, length) = sp.findShortestPath(a, b);
+            if(path.empty()) {
+                TEST(a != b);
+                TEST(length == std::numeric_limits<double>::infinity());
+            } else {
+                TEST(path.front() == a);
+                TEST(path.back() == b);
+                TEST(path.size() > 1 || a == b);
+                double correctLength = 0.0;
+                for(std::size_t i = 1; i < path.size(); ++i) {
+                    TEST(path[i - 1] != path[i]);
+                    correctLength += distance(path[i - 1], path[i]);
+                }
+                TEST(std::abs(length - correctLength) < 1e-6);
+                for(std::size_t i = 1; i + 1 < path.size(); ++i) {
+                    TEST(domain.vertexMap().count(path[i]));
+                }
+            }
+        }
+    }
+    
+    // findShortestPath returns correct result when given equal interior points
+    for(const std::vector<std::vector<Point>>& boundary : spExampleBoundaries) {
+        Domain domain(boundary);
+        ShortestPathContext sp(domain);
+        std::vector<Point> pts = interiorPoints(domain);
+        for(int t = 0; t < 100; ++t) {
+            Point p = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            TEST(sp.findShortestPath(p, p) == std::make_pair(std::vector<Point>{p}, 0.0));
+        }
+    }
+    
+    // findShortestPath throws std::domain_error when given non-interior points
+    for(const std::vector<std::vector<Point>>& boundary : spExampleBoundaries) {
+        Domain domain(boundary);
+        ShortestPathContext sp(domain);
+        std::vector<Point> pts = interiorPoints(domain);
+        std::vector<Point> nonPts = nonInteriorPoints(domain);
+        for(int t = 0; t < 100; ++t) {
+            Point a = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            Point b = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            int mask = std::uniform_int_distribution<int>(1, 3)(rng);
+            if(mask & 1) {
+                a = nonPts[std::uniform_int_distribution<std::size_t>(0, nonPts.size() - 1)(rng)];
+            }
+            if(mask & 2) {
+                b = nonPts[std::uniform_int_distribution<std::size_t>(0, nonPts.size() - 1)(rng)];
+            }
+            bool throws = false;
+            try {
+                sp.findShortestPath(a, b);
+            } catch(std::domain_error&) {
+                throws = true;
+            }
+            TEST(throws);
+        }
+    }
+    
+    // findShortestPath returns correct path when there is direct visibility
+    for(const std::vector<std::vector<Point>>& boundary : spExampleBoundaries) {
+        Domain domain(boundary);
+        ShortestPathContext sp(domain);
+        std::vector<Point> pts = interiorPoints(domain);
+        std::vector<Point> nonPts = nonInteriorPoints(domain);
+        for(int t = 0; t < 100; ++t) {
+            Point a, b;
+            while(true) {
+                a = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+                b = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+                bool ok = true;
+                for(const std::vector<Point>& poly : domain.boundary()) {
+                    Point x = poly.back();
+                    for(Point y : poly) {
+                        ok = ok && !intersects(a, b, x, y);
+                        x = y;
+                    }
+                }
+                if(ok) {
+                    break;
+                }
+            }
+            std::vector<Point> path;
+            double length;
+            std::tie(path, length) = sp.findShortestPath(a, b);
+            if(a == b) {
+                TEST(path.size() == 1);
+                TEST(path.front() == a);
+                TEST(length == 0.0);
+            } else {
+                TEST(path.size() == 2);
+                TEST(path.front() == a);
+                TEST(path.back() == b);
+                TEST(std::abs(length - distance(a, b)) < 1e-6);
+            }
+        }
+    }
+    
+    // findShortestPath path lengths satisfy triangle inequality and are symmetric
+    for(const std::vector<std::vector<Point>>& boundary : spExampleBoundaries) {
+        Domain domain(boundary);
+        ShortestPathContext sp(domain);
+        std::vector<Point> pts = interiorPoints(domain);
+        for(int t = 0; t < 100; ++t) {
+            Point a = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            Point b = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            Point c = pts[std::uniform_int_distribution<std::size_t>(0, pts.size() - 1)(rng)];
+            double ab = sp.findShortestPath(a, b).second;
+            double ba = sp.findShortestPath(b, a).second;
+            double ac = sp.findShortestPath(a, c).second;
+            double bc = sp.findShortestPath(b, c).second;
+            TEST(std::isfinite(ab) == std::isfinite(ba));
+            TEST(!std::isfinite(ab) || std::abs(ab - ba) < 1e-6);
+            if(std::isfinite(ac)) {
+                TEST(ac - ab - bc < 1e-6);
+            } else {
+                TEST(!std::isfinite(ab) || !std::isfinite(bc));
+            }
+        }
+    }
+}
+
 int main() {
     test_int64_hpp();
     test_geometry_hpp();
     test_intersection_hpp();
     test_domain_hpp();
     test_visibility_hpp();
+    test_shortestpath_hpp();
     
     std::cerr << "All tests completed successfully\n";
     

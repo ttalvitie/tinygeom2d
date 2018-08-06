@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -164,6 +165,13 @@ inline bool angleLT(Point a, Point b, Point c, Point d) {
     } else {
         return c1 > c2;
     }
+}
+
+// Returns Euclidean distance between two points as a double-precision floating
+// point number. Used for shortest path lengths because comparing sums of
+// Euclidean distances is complicated and expensive.
+inline double distance(Point a, Point b) {
+    return std::hypot((double)(b.x - a.x), (double)(b.y - a.y));
 }
 
 }

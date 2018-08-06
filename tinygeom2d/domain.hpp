@@ -92,14 +92,38 @@ public:
     
     // Returns the indices of a boundary vertex in the boundary polygons.
     // Equivalent to vertexMap().find(vertex)->second if the vertex is a vertex
-    // of the boundary. Throws std::domain_error if vertex is not a vertex of
-    // the boundary.
+    // of the boundary.
+    // Throws std::domain_error if given vertex is not a vertex of the boundary.
     IdxPair vertexID(Point vertex) const {
         auto it = vertexMap_.find(vertex);
         if(it == vertexMap_.end()) {
             throw std::domain_error("tinygeom2d::Domain::vertexID: given vertex is not in the boundary of the domain");
         }
         return it->second;
+    }
+    
+    // Returns the position of the next vertex from given vertex on the boundary
+    // polygon. 
+    // Throws std::domain_error if given vertex is not a vertex of the boundary.
+    Point nextVertex(Point vertex) const {
+        IdxPair idxs = vertexID(vertex);
+        if(idxs.second == boundary_[idxs.first].size() - 1) {
+            return boundary_[idxs.first].front();
+        } else {
+            return boundary_[idxs.first][idxs.second + 1];
+        }
+    }
+    
+    // Returns the position of the previous vertex from given vertex on the
+    // boundary polygon. 
+    // Throws std::domain_error if given vertex is not a vertex of the boundary.
+    Point prevVertex(Point vertex) const {
+        IdxPair idxs = vertexID(vertex);
+        if(idxs.second == 0) {
+            return boundary_[idxs.first].back();
+        } else {
+            return boundary_[idxs.first][idxs.second - 1];
+        }
     }
     
     // Returns true if given point is an interior point of the domain. The

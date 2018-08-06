@@ -56,6 +56,11 @@ bool yCoordLT(Point a, Point b);
 // The result is undefined if a = b or c = d.
 bool angleLT(Point a, Point b, Point c, Point d);
 
+// Returns Euclidean distance between two points as a double-precision floating
+// point number. Used for shortest path lengths because comparing sums of
+// Euclidean distances is complicated and expensive.
+double distance(Point a, Point b);
+
 }
 
 // Make it possible to use std::unordered_set<Point>.
@@ -121,9 +126,19 @@ public:
 
     // Returns the indices of a boundary vertex in the boundary polygons.
     // Equivalent to vertexMap().find(vertex)->second if the vertex is a vertex
-    // of the boundary. Throws std::domain_error if vertex is not a vertex of
-    // the boundary.
+    // of the boundary.
+    // Throws std::domain_error if given vertex is not a vertex of the boundary.
     IdxPair vertexID(Point vertex) const;
+
+    // Returns the position of the next vertex from given vertex on the boundary
+    // polygon. 
+    // Throws std::domain_error if given vertex is not a vertex of the boundary.
+    Point nextVertex(Point vertex) const;
+
+    // Returns the position of the previous vertex from given vertex on the
+    // boundary polygon. 
+    // Throws std::domain_error if given vertex is not a vertex of the boundary.
+    Point prevVertex(Point vertex) const;
 
     // Returns true if given point is an interior point of the domain. The
     // vertices of the domain do not count as interior points.
@@ -202,6 +217,40 @@ VertexVisibility computeVertexVisibility(const Domain& domain, Point center);
 // for every vertex separately.
 // Time complexity: O(k log n), where k = output size, n = domain boundary size.
 std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain);
+
+}
+```
+### shortestpath.hpp: Shortest path computations
+```c++
+namespace tinygeom2d {
+
+// Polygonal domain preprocessed for computing shortest paths between interior
+// points of the domain.
+class ShortestPathContext {
+public:
+    // Create context for finding shortest paths in given domain.
+    // Time complexity: O(k log n) where n = domain boundary size and
+    // k = output size of computeAllVertexVisibilities.
+    ShortestPathContext(Domain domain);
+
+    // Returns the domain for which this context was created.
+    const Domain& domain() const;
+
+    // Find shortest path between interior points a and b of the domain. The
+    // return value is a pair (path, length), where path is the sequence of
+    // points defining the path as a polygonal line, and length is the Euclidean
+    // length of the path. If there is no path between a and b, the path is
+    // empty and the length is infinity. Otherwise, the path has always at least
+    // one element, the first one is a and the last one is b. No element is
+    // repeated on the path. Inexact double precision floating point numbers are
+    // used for path lengths, but the result is still always a valid path and
+    // its length should be optimal within floating point accuracy.
+    // Throws std::domain_error if a or b is not an interior point of the
+    // domain.
+    typedef std::pair<std::vector<Point>, double> PathResult;
+    PathResult findShortestPath(Point a, Point b) const;
+
+};
 
 }
 ```
