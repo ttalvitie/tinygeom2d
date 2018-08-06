@@ -48,10 +48,8 @@ inline bool segmentLeftOfAtBottom(
     }
 }
 
-// along the horizontal line with y-coordinate at the larger of the bottom
-// y-coordinates of the segments. If 
-
-// Returns true if two of the given segments intersect.
+// Returns true if two segments among given segments intersect as defined for
+// intersects(a, b, c, d).
 inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
     typedef std::pair<Point, Point> Segment;
     

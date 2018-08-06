@@ -43,8 +43,8 @@ bool isCCW(Point a, Point b, Point c, Point d);
 // oriented (not collinear).
 bool isCCW(Point a, Point b, Point c);
 
-// Returns true if the y-coordinate of a is strictly less than, equal to or
-// less than the y-coordinate of b, respectively.
+// Returns true if the y-coordinate of a is strictly less than the y-coordinate
+// of b.
 bool yCoordLT(Point a, Point b);
 
 // Returns true if b - a has angle strictly less than d - c, when angles are
@@ -93,17 +93,20 @@ public:
     // polygon may have been reversed.
     const std::vector<std::vector<Point>>& boundary() const;
 
-    // Returns a mapping from the vertices of the boundary to their locations
-    // in the boundary expressed as pairs (a, b), where a is the index of the
-    // polygon and b is the index of the vertex in the polygon. Thus, for any
-    // element (v -> (a, b)) in the map, boundary()[a][b] == v.
-    const std::unordered_map<Point, std::pair<std::size_t, std::size_t>>& vertexMap() const;
+    // Pair identifying a vertex in the boundary, consisting of the index of the
+    // boundary polygon and the index of the vertex in the polygon.
+    typedef std::pair<std::size_t, std::size_t> IdxPair;
 
-    // Returns a pair consisting of the index of the polygon boundary and the
-    // index of the vertex in that polygon for given boundary vertex. Equivalent
-    // to vertexMap().find(vertex)->second if the vertex is a vertex of the boundary.
-    // Throws std::domain_error if vertex is not a vertex of the boundary.
-    std::pair<std::size_t, std::size_t> vertexID(Point vertex) const;
+    // Returns a mapping from the vertices of the boundary to their indices in
+    // the boundary polygons. For any element (v -> (a, b)) in the map,
+    // boundary()[a][b] == v.
+    const std::unordered_map<Point, IdxPair>& vertexMap() const;
+
+    // Returns the indices of a boundary vertex in the boundary polygons.
+    // Equivalent to vertexMap().find(vertex)->second if the vertex is a vertex
+    // of the boundary. Throws std::domain_error if vertex is not a vertex of
+    // the boundary.
+    IdxPair vertexID(Point vertex) const;
 
     // Returns true if given point is an interior point of the domain. The
     // vertices of the domain do not count as interior points.
@@ -134,7 +137,8 @@ bool segmentLeftOfAtBottom(
     std::pair<Point, Point> b
 );
 
-// Returns true if two of the given segments intersect.
+// Returns true if two segments among given segments intersect as defined for
+// intersects(a, b, c, d).
 bool intersects(std::vector<std::pair<Point, Point>> segments);
 
 }

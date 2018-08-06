@@ -138,8 +138,8 @@ inline bool isCCW(Point a, Point b, Point c) {
     return isCCW(a, b, a, c);
 }
 
-// Returns true if the y-coordinate of a is strictly less than, equal to or
-// less than the y-coordinate of b, respectively.
+// Returns true if the y-coordinate of a is strictly less than the y-coordinate
+// of b.
 inline bool yCoordLT(Point a, Point b) {
     if(a.y == b.y) {
         return a.x > b.x;
