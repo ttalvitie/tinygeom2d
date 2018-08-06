@@ -221,7 +221,7 @@ private:
         // tells whether the edge has an odd number of edges to the left.
         typedef std::pair<Edge, bool> Elem;
         auto edgeOrderX = [&](Elem a, Elem b) {
-            return segmentLeftOfAtBottom(a.first, b.first);
+            return intersection_detail::segmentLeftOfAtBottom(a.first, b.first);
         };
         typedef std::set<Elem, decltype(edgeOrderX)> Sweepline;
         typedef Sweepline::iterator Iter;

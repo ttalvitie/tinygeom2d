@@ -11,18 +11,7 @@
 
 namespace tinygeom2d {
 
-// Returns true if the interiors of the segments a-b and c-d intersect, i.e.,
-// there is a point that is on both segments that is not an endpoint of one of
-// the segments.
-inline bool intersects(Point a, Point b, Point c, Point d) {
-    if(a == c || a == d || b == c || b == d) {
-        if(((a == c && b == d) || (a == d && b == c)) && a != b) {
-            return true;
-        }
-        return false;
-    }
-    return isCCW(a, b, c) != isCCW(a, b, d) && isCCW(c, d, a) != isCCW(c, d, b);
-}
+namespace intersection_detail {
 
 // Returns true if segment a is to the left of segment b in the left-to-right
 // ordering for segments with intersecting y-coordinate ranges, such that the
@@ -46,6 +35,21 @@ inline bool segmentLeftOfAtBottom(
     } else {
         return isCCW(a.first, b.first, b.second);
     }
+}
+    
+}
+
+// Returns true if the interiors of the segments a-b and c-d intersect, i.e.,
+// there is a point that is on both segments that is not an endpoint of one of
+// the segments.
+inline bool intersects(Point a, Point b, Point c, Point d) {
+    if(a == c || a == d || b == c || b == d) {
+        if(((a == c && b == d) || (a == d && b == c)) && a != b) {
+            return true;
+        }
+        return false;
+    }
+    return isCCW(a, b, c) != isCCW(a, b, d) && isCCW(c, d, a) != isCCW(c, d, b);
 }
 
 // Returns true if two segments among given segments intersect as defined for
@@ -87,7 +91,7 @@ inline bool intersects(std::vector<std::pair<Point, Point>> segments) {
     // can be caught as neighboring segments.
     typedef std::set<Segment, bool (*)(Segment, Segment)> Sweepline;
     typedef Sweepline::iterator Iter;
-    Sweepline sweepline(segmentLeftOfAtBottom);
+    Sweepline sweepline(intersection_detail::segmentLeftOfAtBottom);
     std::size_t bottomPos = 0;
     std::size_t topPos = 0;
     while(topPos != permTop.size()) {

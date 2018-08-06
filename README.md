@@ -125,18 +125,6 @@ namespace tinygeom2d {
 // the segments.
 bool intersects(Point a, Point b, Point c, Point d);
 
-// Returns true if segment a is to the left of segment b in the left-to-right
-// ordering for segments with intersecting y-coordinate ranges, such that the
-// comparison is done at the bottommost horizontal line that intersects both
-// segments. If both segments have the same bottom point, the comparison is done
-// at a higher horizontal line that is infinitesimally close. The points in both
-// segments must be ordered such that the bottom point is first. The segments
-// must not have length zero.
-bool segmentLeftOfAtBottom(
-    std::pair<Point, Point> a,
-    std::pair<Point, Point> b
-);
-
 // Returns true if two segments among given segments intersect as defined for
 // intersects(a, b, c, d).
 bool intersects(std::vector<std::pair<Point, Point>> segments);

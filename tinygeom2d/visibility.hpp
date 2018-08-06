@@ -14,7 +14,6 @@
 namespace tinygeom2d {
 
 namespace visibility_detail {
-// Implementation details
 
 typedef std::pair<Point, Point> Edge;
 
@@ -468,7 +467,7 @@ inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& 
             if(yCoordLT(b2, a2)) {
                 std::swap(a2, b2);
             }
-            return segmentLeftOfAtBottom({a1, b1}, {a2, b2});
+            return intersection_detail::segmentLeftOfAtBottom({a1, b1}, {a2, b2});
         };
         std::set<std::size_t, decltype(leftOf)> sweepline(leftOf);
         for(Event event : events) {
