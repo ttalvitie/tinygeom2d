@@ -21,10 +21,8 @@ for (header, title) in headers:
     with open("tinygeom2d/" + header) as fp:
         code = fp.read()
     
-    # Hackishly remove unnecessary things from the code
+    # Ugly regex/manual string handling hack that removes unnecessary things from the code
     code = re.sub(r'^\s*#.*$', r'', code, flags=re.MULTILINE)
-    code = re.sub(r'(^\s*//.*$\n)+\s*$', r'', code, flags=re.MULTILINE)
-    code = re.sub(r'(^\s*$\n)+', r'\n', code, flags=re.MULTILINE)
     
     code = code.strip()
     pos = -1
@@ -71,6 +69,26 @@ for (header, title) in headers:
         if code[a-2:a] == "\n\n":
             a -= 1
         code = code[:a] + code[i:]
+    
+    while True:
+        match = re.search("namespace\s+[a-zA-Z_]*_detail", code)
+        if match == None:
+            break
+        pos = match.start()
+        level = 0
+        i = pos
+        while True:
+            if code[i] == "{":
+                level += 1
+            elif code[i] == "}":
+                level -= 1
+                if level == 0:
+                    break
+            i += 1
+        code = code[:pos] + code[i+1:]
+    
+    code = re.sub(r'(^\s*//.*$\n)+\s*$', r'', code, flags=re.MULTILINE)
+    code = re.sub(r'(^\s*$\n)+', r'\n', code, flags=re.MULTILINE)
     
     print("```c++")
     print(code)

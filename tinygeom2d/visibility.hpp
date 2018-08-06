@@ -13,8 +13,8 @@
 
 namespace tinygeom2d {
 
-// Implementation details
 namespace visibility_detail {
+// Implementation details
 
 typedef std::pair<Point, Point> Edge;
 

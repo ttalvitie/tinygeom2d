@@ -108,6 +108,7 @@ public:
     // Returns true if given point is an interior point of the domain. The
     // vertices of the domain do not count as interior points.
     bool isInteriorPoint(Point point) const;
+
 };
 
 }
@@ -141,46 +142,6 @@ bool intersects(std::vector<std::pair<Point, Point>> segments);
 ### visibility.hpp: Visibility computations
 ```c++
 namespace tinygeom2d {
-
-// Implementation details
-namespace visibility_detail {
-
-typedef std::pair<Point, Point> Edge;
-
-struct Event {
-    Edge edge;
-    bool add;
-
-    Point vertex() const;
-};
-
-// Ordering of events based on angle around center
-struct EventAngleCmp {
-    Point center;
-
-    bool operator()(Event a, Event b);
-};
-
-// Ordering of events based on angle around center with reference point giving
-// zero angle direction
-struct EventAngleCmpWithReference {
-    Point center;
-    Point reference;
-
-    bool operator()(Event a, Event b);
-};
-
-// Ordering of edges visible to a ray from center by distance
-struct DistLT {
-    Point center;
-
-    bool operator()(Edge a, Edge b) const;
-};
-
-// Is b between a and c in CCW ordered angles around center
-bool anglesOrdered(Point center, Point a, Point b, Point c);
-
-}
 
 // The visibile vertices and edges of a domain from a center point inside the
 // domain, computed by computePointVisibility.
