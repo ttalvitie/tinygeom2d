@@ -27,6 +27,8 @@ void test(bool ok, const char* str, const char* file, int line) {
 #define TEST(check) test((check), #check, __FILE__, __LINE__) 
 
 void test_int64_hpp() {
+    using namespace int64_detail;
+    
     // portableMulU64: random tests generated using Python 3:
     // from random import randint
     // x = randint(0, 2**64-1)

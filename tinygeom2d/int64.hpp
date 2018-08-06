@@ -13,8 +13,10 @@ namespace tinygeom2d {
 using std::int64_t;
 using std::uint64_t;
 
+namespace int64_detail {
+
 // Portable implementation of multiplication of 64-bit unsigned integers.
-// The result is the std::pair (high bits, low bits).
+// The result is the pair of high bits and low bits.
 inline std::pair<uint64_t, uint64_t> portableMulU64(uint64_t x, uint64_t y) {
     const uint64_t low = ((uint64_t)1 << 32) - (uint64_t)1;
     
@@ -37,9 +39,6 @@ inline std::pair<uint64_t, uint64_t> portableMulU64(uint64_t x, uint64_t y) {
     return {res1, res0};
 }
 
-// Returns 1, 0 or -1, if a * b is greater than, equal to or less than c * d,
-// respectively. This is the portable implementation - the function cmpMul64
-// may be faster.
 inline int portableCmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
     std::pair<uint64_t, uint64_t> x = portableMulU64((uint64_t)a, (uint64_t)b);
     std::pair<uint64_t, uint64_t> y = portableMulU64((uint64_t)c, (uint64_t)d);
@@ -64,35 +63,43 @@ inline int portableCmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
     }
 }
 
-// Equivalent to portableCmpMul64, but may use compiler- or platform-specific
-// optimizations.
+}
+
 #if __SIZEOF_INT128__ == 16 // gcc, clang and icc on x86_64
-    inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
-        __int128 x = (__int128)a * (__int128)b;
-        __int128 y = (__int128)c * (__int128)d;
-        
-        if(x == y) {
-            return 0;
-        } else {
-            return x > y ? 1 : -1;
-        }
+
+inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
+    __int128 x = (__int128)a * (__int128)b;
+    __int128 y = (__int128)c * (__int128)d;
+    
+    if(x == y) {
+        return 0;
+    } else {
+        return x > y ? 1 : -1;
     }
+}
+
 #elif defined(_MSC_VER) && defined(_M_X64) // MSVC on x86_64
-    inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
-        std::pair<int64_t, uint64_t> x, y;
-        x.second = _mul128(a, b, &x.first);
-        y.second = _mul128(c, d, &y.first);
-        
-        if(x == y) {
-            return 0;
-        } else {
-            return x > y ? 1 : -1;
-        }
+
+inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
+    std::pair<int64_t, uint64_t> x, y;
+    x.second = _mul128(a, b, &x.first);
+    y.second = _mul128(c, d, &y.first);
+    
+    if(x == y) {
+        return 0;
+    } else {
+        return x > y ? 1 : -1;
     }
+}
+
 #else
-    inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
-        return portableCmpMul64(a, b, c, d);
-    }
+
+// Returns 1, 0 or -1, if a * b is greater than, equal to or less than c * d,
+// respectively.
+inline int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d) {
+    return int64_detail::portableCmpMul64(a, b, c, d);
+}
+
 #endif
 
 }

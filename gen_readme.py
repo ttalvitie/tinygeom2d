@@ -14,6 +14,7 @@ headers = [
     ("domain.hpp", "Polygonal domains"),
     ("intersection.hpp", "Intersection detection"),
     ("visibility.hpp", "Visibility computations"),
+    ("int64.hpp", "Portable 64-bit integer multiplication comparison"),
 ]
 
 for (header, title) in headers:
@@ -71,7 +72,7 @@ for (header, title) in headers:
         code = code[:a] + code[i:]
     
     while True:
-        match = re.search("namespace\s+[a-zA-Z_]*_detail", code)
+        match = re.search("namespace\s+[a-zA-Z0-9_]*_detail", code)
         if match == None:
             break
         pos = match.start()
@@ -87,6 +88,7 @@ for (header, title) in headers:
             i += 1
         code = code[:pos] + code[i+1:]
     
+    code = re.sub(r'^\s*$\n^int cmpMul.*$', r'', code, flags=re.MULTILINE)
     code = re.sub(r'(^\s*//.*$\n)+\s*$', r'', code, flags=re.MULTILINE)
     code = re.sub(r'(^\s*$\n)+', r'\n', code, flags=re.MULTILINE)
     

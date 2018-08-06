@@ -210,3 +210,16 @@ std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain)
 
 }
 ```
+### int64.hpp: Portable 64-bit integer multiplication comparison
+```c++
+namespace tinygeom2d {
+
+using std::int64_t;
+using std::uint64_t;
+
+// Returns 1, 0 or -1, if a * b is greater than, equal to or less than c * d,
+// respectively.
+int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d);
+
+}
+```
