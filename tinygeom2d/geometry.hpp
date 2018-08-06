@@ -37,6 +37,7 @@ struct Point {
         }
     }
     
+    // Coordinates of the point, must be in range [MinCoord, MaxCoord].
     int64_t x;
     int64_t y;
 };
