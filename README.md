@@ -1,8 +1,43 @@
 # tinygeom2d
 Tiny 2D geometry library
+# Examples
+## Domains and points
+### Code
+```c++
+#include <iostream>
 
-## API reference
-### geometry.hpp: Geometry primitives
+#include "tinygeom2d/domain.hpp"
+
+using namespace tinygeom2d;
+
+int main() {
+    // Create domain with boundary consisting of two polygons
+    std::vector<std::vector<Point>> boundary = {
+        {{2, 0}, {5, 2}, {8, 1}, {12, 5}, {6, 7}, {0, 6}}, // Outer polygon
+        {{5, 3}, {8, 3}, {6, 6}} // Triangular hole
+    };
+    Domain domain(boundary);
+    
+    // Create some points and query whether they are interior points of the domain
+    Point a(2, 3);
+    Point b(5, 1);
+    Point c(6, 4);
+    
+    std::cout << a << " interior: " << (domain.isInteriorPoint(a) ? "yes" : "no") << "\n";
+    std::cout << b << " interior: " << (domain.isInteriorPoint(b) ? "yes" : "no") << "\n";
+    std::cout << c << " interior: " << (domain.isInteriorPoint(c) ? "yes" : "no") << "\n";
+}
+```
+### Output
+```
+(2, 3) interior: yes
+(5, 1) interior: no
+(6, 4) interior: no
+```
+### Figure
+![domain example figure](examples/domain.svg)
+# API reference
+## geometry.hpp: Geometry primitives
 ```c++
 namespace tinygeom2d {
 
@@ -86,7 +121,7 @@ struct hash<tinygeom2d::Point> {
 };
 }
 ```
-### intersection.hpp: Intersection detection
+## intersection.hpp: Intersection detection
 ```c++
 namespace tinygeom2d {
 
@@ -102,7 +137,7 @@ bool intersects(std::vector<std::pair<Point, Point>> segments);
 
 }
 ```
-### domain.hpp: Polygonal domains
+## domain.hpp: Polygonal domains
 ```c++
 namespace tinygeom2d {
 
@@ -163,7 +198,7 @@ public:
 
 }
 ```
-### visibility.hpp: Visibility computations
+## visibility.hpp: Visibility computations
 ```c++
 namespace tinygeom2d {
 
@@ -240,7 +275,7 @@ std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain)
 
 }
 ```
-### shortestpath.hpp: Shortest path computations
+## shortestpath.hpp: Shortest path computations
 ```c++
 namespace tinygeom2d {
 
@@ -276,7 +311,7 @@ public:
 
 }
 ```
-### int64.hpp: Portable 64-bit integer multiplication comparison
+## int64.hpp: Portable 64-bit integer multiplication comparison
 ```c++
 namespace tinygeom2d {
 

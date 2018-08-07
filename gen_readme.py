@@ -2,12 +2,50 @@
 
 import re
 import sys
+import subprocess
+
+subprocess.check_call(["make"], cwd="examples", stdout=subprocess.DEVNULL)
 
 print("""\
 # tinygeom2d
 Tiny 2D geometry library
+# Examples""")
 
-## API reference""")
+examples = [
+    ("domain", "Domains and points"),
+]
+
+for (example, title) in examples:
+    print("## {}".format(title))
+    with open("examples/{}.cpp".format(example)) as fp:
+        code = ""
+        noreadme = False
+        for line in fp:
+            if "BEGIN NOREADME" in line:
+                noreadme = True
+            elif "END NOREADME" in line:
+                noreadme = False
+            else:
+                if not noreadme:
+                    code += line
+    code = code.strip()
+    
+    output = subprocess.check_output(["./" + example], cwd="examples")
+    output = output.decode("UTF-8")
+    output = output.strip()
+    
+    print("### Code")
+    print("```c++")
+    print(code)
+    print("```")
+    print("### Output")
+    print("```")
+    print(output)
+    print("```")
+    print("### Figure")
+    print("![{} example figure](examples/{}.svg)".format(example, example))
+
+print("# API reference")
 
 headers = [
     ("geometry.hpp", "Geometry primitives"),
@@ -19,7 +57,7 @@ headers = [
 ]
 
 for (header, title) in headers:
-    print("### {}: {}".format(header, title))
+    print("## {}: {}".format(header, title))
     with open("tinygeom2d/" + header) as fp:
         code = fp.read()
     
