@@ -28,7 +28,7 @@ int main() {
     SVG svg(domain);
     svg.drawPointWithCoords(a, colors::blue);
     svg.drawPointWithCoords(b, colors::red);
-    svg.drawPointWithCoords(c, colors::red);
+    svg.drawPointWithCoords(c, colors::red, true, false);
     svg.drawPointWithCoords({1, 0}, colors::black, false, true);
     svg.drawPointWithCoords({6, 2}, colors::black);
     svg.drawPointWithCoords({10, 1}, colors::black, true, false);

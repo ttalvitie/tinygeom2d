@@ -2,29 +2,29 @@
   <rect x="0" y="0" width="800" height="400" fill="gainsboro" />
   <path d="M 104.433 372.414 L 350.739 273.892 L 547.783 323.153 L 744.828 224.631 L 695.567 76.8473 L 400 27.5862 L 55.1724 76.8473 Z M 400 76.8473 L 547.783 224.631 L 350.739 224.631 Z " fill="white" stroke="black" stroke-width="3" />
   <circle cx="153.695" cy="224.631" r="7" fill="royalblue" />
-  <text x="161.695" y="219.631" style="font: normal 20px sans-serif" fill="royalblue">(2, 3)</text>
+  <text x="161.695" y="219.631" style="font: normal 16px sans-serif" fill="royalblue">(2, 3)</text>
   <circle cx="400" cy="175.369" r="7" fill="firebrick" />
-  <text x="408" y="170.369" style="font: normal 20px sans-serif" fill="firebrick">(7, 4)</text>
+  <text x="408" y="170.369" style="font: normal 16px sans-serif" fill="firebrick">(7, 4)</text>
   <circle cx="695.567" cy="273.892" r="7" fill="firebrick" />
-  <text x="703.567" y="268.892" style="font: normal 20px sans-serif" fill="firebrick">(13, 2)</text>
+  <text x="703.567" y="288.892" style="font: normal 16px sans-serif" fill="firebrick">(13, 2)</text>
   <circle cx="104.433" cy="372.414" r="7" fill="black" />
-  <text x="96.4335" y="367.414" style="font: normal 20px sans-serif" fill="black" text-anchor="end">(1, 0)</text>
+  <text x="96.4335" y="367.414" style="font: normal 16px sans-serif" fill="black" text-anchor="end">(1, 0)</text>
   <circle cx="350.739" cy="273.892" r="7" fill="black" />
-  <text x="358.739" y="268.892" style="font: normal 20px sans-serif" fill="black">(6, 2)</text>
+  <text x="358.739" y="268.892" style="font: normal 16px sans-serif" fill="black">(6, 2)</text>
   <circle cx="547.783" cy="323.153" r="7" fill="black" />
-  <text x="555.783" y="341.153" style="font: normal 20px sans-serif" fill="black">(10, 1)</text>
+  <text x="555.783" y="338.153" style="font: normal 16px sans-serif" fill="black">(10, 1)</text>
   <circle cx="744.828" cy="224.631" r="7" fill="black" />
-  <text x="736.828" y="219.631" style="font: normal 20px sans-serif" fill="black" text-anchor="end">(14, 3)</text>
+  <text x="736.828" y="219.631" style="font: normal 16px sans-serif" fill="black" text-anchor="end">(14, 3)</text>
   <circle cx="695.567" cy="76.8473" r="7" fill="black" />
-  <text x="703.567" y="71.8473" style="font: normal 20px sans-serif" fill="black">(13, 6)</text>
+  <text x="703.567" y="71.8473" style="font: normal 16px sans-serif" fill="black">(13, 6)</text>
   <circle cx="400" cy="27.5862" r="7" fill="black" />
-  <text x="408" y="22.5862" style="font: normal 20px sans-serif" fill="black">(7, 7)</text>
+  <text x="408" y="22.5862" style="font: normal 16px sans-serif" fill="black">(7, 7)</text>
   <circle cx="55.1724" cy="76.8473" r="7" fill="black" />
-  <text x="63.1724" y="94.8473" style="font: normal 20px sans-serif" fill="black">(0, 6)</text>
+  <text x="63.1724" y="91.8473" style="font: normal 16px sans-serif" fill="black">(0, 6)</text>
   <circle cx="350.739" cy="224.631" r="7" fill="black" />
-  <text x="342.739" y="219.631" style="font: normal 20px sans-serif" fill="black" text-anchor="end">(6, 3)</text>
+  <text x="342.739" y="219.631" style="font: normal 16px sans-serif" fill="black" text-anchor="end">(6, 3)</text>
   <circle cx="547.783" cy="224.631" r="7" fill="black" />
-  <text x="555.783" y="219.631" style="font: normal 20px sans-serif" fill="black">(10, 3)</text>
+  <text x="555.783" y="219.631" style="font: normal 16px sans-serif" fill="black">(10, 3)</text>
   <circle cx="400" cy="76.8473" r="7" fill="black" />
-  <text x="408" y="71.8473" style="font: normal 20px sans-serif" fill="black">(7, 6)</text>
+  <text x="408" y="71.8473" style="font: normal 16px sans-serif" fill="black">(7, 6)</text>
 </svg>

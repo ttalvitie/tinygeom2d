@@ -87,7 +87,7 @@ public:
         double x = mapX(p);
         double y = mapY(p);
         ss << "  <circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"7\" fill=\"" << color << "\" />\n";
-        ss << "  <text x=\"" << (right ? x + 8 : x - 8) << "\" y=\"" << (up ? y - 5 : y + 18) << "\" style=\"font: normal 20px sans-serif\" fill=\"" << color << "\"" << (right ? "" : " text-anchor=\"end\"") << ">(" << p.x << ", " << p.y << ")</text>\n";
+        ss << "  <text x=\"" << (right ? x + 8 : x - 8) << "\" y=\"" << (up ? y - 5 : y + 15) << "\" style=\"font: normal 16px sans-serif\" fill=\"" << color << "\"" << (right ? "" : " text-anchor=\"end\"") << ">(" << p.x << ", " << p.y << ")</text>\n";
     }
     
     void save(const std::string& filename) {
