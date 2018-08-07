@@ -174,6 +174,35 @@ inline double distance(Point a, Point b) {
     return std::hypot((double)(b.x - a.x), (double)(b.y - a.y));
 }
 
+// Convenience function that returns a safe multiplicative factor for converting
+// floating point coordinates to the correct range for Points, if the original
+// x-coordinates are in range [minX, maxX] and the original y-coordinates are in
+// range [minY, maxY]. Using the result factor, original point (x, y) in range
+// [minX, maxX] x [minY, maxY] should be converted to a Point as follows:
+// Point point(std::round(x * factor), std::round(y * factor)). The inverse
+// conversion back to the original coordinate space is obtained by
+// (point.x / factor, point.y / factor). Note that the conversion is lossy, and
+// may change the geometry or map different points to the same point, but in
+// most practical settings, the precision should suffice.
+inline double normalizationFactor(
+    double minX, double maxX,
+    double minY, double maxY
+) {
+    double maxSrc = std::max(
+        std::max(std::abs(minX), std::abs(maxX)),
+        std::max(std::abs(minY), std::abs(maxY))
+    );
+    double maxDest = 0.999 * std::max(
+        std::abs((double)MinCoord),
+        std::abs((double)MaxCoord)
+    );
+    double factor = maxDest / maxSrc;
+    if(!std::isfinite(factor)) {
+        factor = 1.0;
+    }
+    return factor;
+}
+
 }
 
 // Make it possible to use std::unordered_set<Point>.

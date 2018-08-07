@@ -300,6 +300,40 @@ void test_geometry_hpp() {
         }
     }
     
+    // normalizationFactor works for random ranges
+    for(int t = 0; t < 50; ++t) {
+        double minX = std::normal_distribution<double>(0.0, 1.0)(rng);
+        double maxX = std::normal_distribution<double>(0.0, 1.0)(rng);
+        double minY = std::normal_distribution<double>(0.0, 1.0)(rng);
+        double maxY = std::normal_distribution<double>(0.0, 1.0)(rng);
+        if(minX > maxX) {
+            std::swap(minX, maxX);
+        }
+        if(minY > maxY) {
+            std::swap(minY, maxY);
+        }
+        double factor = normalizationFactor(minX, maxX, minY, maxY);
+        TEST(std::isfinite(factor));
+        TEST(factor >= 0.0);
+        for(int t2 = 0; t2 < 50; ++t2) {
+            double x = std::uniform_real_distribution<double>(minX, maxX)(rng);
+            double y = std::uniform_real_distribution<double>(minY, maxY)(rng);
+            Point point(std::round(x * factor), std::round(y * factor));
+        }
+    }
+    
+    // normalizationFactor works for zero range
+    {
+        double factor = normalizationFactor(0.0, 0.0, 0.0, 0.0);
+        TEST(std::isfinite(factor));
+        TEST(factor >= 0.0);
+    }
+    {
+        double factor = normalizationFactor(-0.0, -0.0, -0.0, -0.0);
+        TEST(std::isfinite(factor));
+        TEST(factor >= 0.0);
+    }
+    
     // Hash and comparison operators of Point
     {
         std::unordered_set<Point> x;
