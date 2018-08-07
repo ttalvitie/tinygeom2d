@@ -13,15 +13,15 @@ using namespace tinygeom2d;
 int main() {
     // Create domain with boundary consisting of two polygons
     std::vector<std::vector<Point>> boundary = {
-        {{2, 0}, {5, 2}, {8, 1}, {12, 5}, {6, 7}, {0, 6}}, // Outer polygon
-        {{5, 3}, {8, 3}, {6, 6}} // Triangular hole
+        {{1, 0}, {6, 2}, {10, 1}, {14, 3}, {13, 6}, {7, 7}, {0, 6}}, // Outer polygon
+        {{6, 3}, {10, 3}, {7, 6}} // Triangular hole
     };
     Domain domain(boundary);
     
     // Create some points and query whether they are interior points of the domain
     Point a(2, 3);
-    Point b(5, 1);
-    Point c(6, 4);
+    Point b(7, 4);
+    Point c(13, 2);
     
     std::cout << a << " interior: " << (domain.isInteriorPoint(a) ? "yes" : "no") << "\n";
     std::cout << b << " interior: " << (domain.isInteriorPoint(b) ? "yes" : "no") << "\n";
@@ -31,8 +31,8 @@ int main() {
 ### Output
 ```
 (2, 3) interior: yes
-(5, 1) interior: no
-(6, 4) interior: no
+(7, 4) interior: no
+(13, 2) interior: no
 ```
 ### Figure
 ![domain example figure](examples/domain.svg)

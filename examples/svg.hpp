@@ -9,6 +9,14 @@
 #include "tinygeom2d/domain.hpp"
 #include "tinygeom2d/geometry.hpp"
 
+namespace colors {
+    const std::string black = "black";
+    const std::string white = "white";
+    const std::string lightgray = "gainsboro";
+    const std::string red = "firebrick";
+    const std::string blue = "royalblue";
+}
+
 class SVG {
 public:
     typedef tinygeom2d::Domain Domain;
@@ -16,7 +24,7 @@ public:
     
     SVG(const Domain& domain) {
         ss << "<svg width=\"" << Width << "\" height=\"" << Height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-        ss << "  <rect x=\"0\" y=\"0\" width=\"" << Width << "\" height=\"" << Height << "\" fill=\"silver\" />\n";
+        ss << "  <rect x=\"0\" y=\"0\" width=\"" << Width << "\" height=\"" << Height << "\" fill=\"" << colors::lightgray << "\" />\n";
         
         const double Infinity = std::numeric_limits<double>::infinity();
         double minX = Infinity;
@@ -32,8 +40,8 @@ public:
             }
         }
         
-        double adjX = 0.05 * (maxX - minX);
-        double adjY = 0.05 * (maxY - minY);
+        double adjX = 0.08 * (maxX - minX);
+        double adjY = 0.08 * (maxY - minY);
         minX -= adjX;
         maxX += adjX;
         minY -= adjY;
@@ -67,14 +75,19 @@ public:
             }
             ss << "Z ";
         }
-        ss << "\" fill=\"white\" stroke=\"black\" stroke-width=\"3\" />\n";
+        ss << "\" fill=\"" << colors::white << "\" stroke=\"black\" stroke-width=\"3\" />\n";
     }
     
-    void drawPointWithCoords(Point p) {
+    void drawPointWithCoords(
+        Point p,
+        const std::string& color = colors::black,
+        bool right = true,
+        bool up = true
+    ) {
         double x = mapX(p);
         double y = mapY(p);
-        ss << "  <circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"7\" fill=\"red\" />\n";
-        ss << "  <text x=\"" << x + 8 << "\" y=\"" << y - 5 << "\" style=\"font: normal 20px sans-serif\" fill=\"red\">(" << p.x << ", " << p.y << ")</text>\n";
+        ss << "  <circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"7\" fill=\"" << color << "\" />\n";
+        ss << "  <text x=\"" << (right ? x + 8 : x - 8) << "\" y=\"" << (up ? y - 5 : y + 18) << "\" style=\"font: normal 20px sans-serif\" fill=\"" << color << "\"" << (right ? "" : " text-anchor=\"end\"") << ">(" << p.x << ", " << p.y << ")</text>\n";
     }
     
     void save(const std::string& filename) {
@@ -87,7 +100,7 @@ public:
     
 private:
     const double Width = 800;
-    const double Height = 512;
+    const double Height = 400;
     
     double sx;
     double sy;

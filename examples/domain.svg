@@ -1,10 +1,30 @@
-<svg width="800" height="512" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="800" height="512" fill="silver" />
-  <path d="M 157.576 468.121 L 339.394 346.909 L 521.212 407.515 L 763.636 165.091 L 400 43.8788 L 36.3636 104.485 Z M 400 104.485 L 521.212 286.303 L 339.394 286.303 Z " fill="white" stroke="black" stroke-width="3" />
-  <circle cx="157.576" cy="286.303" r="7" fill="red" />
-  <text x="165.576" y="281.303" style="font: normal 20px sans-serif" fill="red">(2, 3)</text>
-  <circle cx="339.394" cy="407.515" r="7" fill="red" />
-  <text x="347.394" y="402.515" style="font: normal 20px sans-serif" fill="red">(5, 1)</text>
-  <circle cx="400" cy="225.697" r="7" fill="red" />
-  <text x="408" y="220.697" style="font: normal 20px sans-serif" fill="red">(6, 4)</text>
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="800" height="400" fill="gainsboro" />
+  <path d="M 104.433 372.414 L 350.739 273.892 L 547.783 323.153 L 744.828 224.631 L 695.567 76.8473 L 400 27.5862 L 55.1724 76.8473 Z M 400 76.8473 L 547.783 224.631 L 350.739 224.631 Z " fill="white" stroke="black" stroke-width="3" />
+  <circle cx="153.695" cy="224.631" r="7" fill="royalblue" />
+  <text x="161.695" y="219.631" style="font: normal 20px sans-serif" fill="royalblue">(2, 3)</text>
+  <circle cx="400" cy="175.369" r="7" fill="firebrick" />
+  <text x="408" y="170.369" style="font: normal 20px sans-serif" fill="firebrick">(7, 4)</text>
+  <circle cx="695.567" cy="273.892" r="7" fill="firebrick" />
+  <text x="703.567" y="268.892" style="font: normal 20px sans-serif" fill="firebrick">(13, 2)</text>
+  <circle cx="104.433" cy="372.414" r="7" fill="black" />
+  <text x="96.4335" y="367.414" style="font: normal 20px sans-serif" fill="black" text-anchor="end">(1, 0)</text>
+  <circle cx="350.739" cy="273.892" r="7" fill="black" />
+  <text x="358.739" y="268.892" style="font: normal 20px sans-serif" fill="black">(6, 2)</text>
+  <circle cx="547.783" cy="323.153" r="7" fill="black" />
+  <text x="555.783" y="341.153" style="font: normal 20px sans-serif" fill="black">(10, 1)</text>
+  <circle cx="744.828" cy="224.631" r="7" fill="black" />
+  <text x="736.828" y="219.631" style="font: normal 20px sans-serif" fill="black" text-anchor="end">(14, 3)</text>
+  <circle cx="695.567" cy="76.8473" r="7" fill="black" />
+  <text x="703.567" y="71.8473" style="font: normal 20px sans-serif" fill="black">(13, 6)</text>
+  <circle cx="400" cy="27.5862" r="7" fill="black" />
+  <text x="408" y="22.5862" style="font: normal 20px sans-serif" fill="black">(7, 7)</text>
+  <circle cx="55.1724" cy="76.8473" r="7" fill="black" />
+  <text x="63.1724" y="94.8473" style="font: normal 20px sans-serif" fill="black">(0, 6)</text>
+  <circle cx="350.739" cy="224.631" r="7" fill="black" />
+  <text x="342.739" y="219.631" style="font: normal 20px sans-serif" fill="black" text-anchor="end">(6, 3)</text>
+  <circle cx="547.783" cy="224.631" r="7" fill="black" />
+  <text x="555.783" y="219.631" style="font: normal 20px sans-serif" fill="black">(10, 3)</text>
+  <circle cx="400" cy="76.8473" r="7" fill="black" />
+  <text x="408" y="71.8473" style="font: normal 20px sans-serif" fill="black">(7, 6)</text>
 </svg>
