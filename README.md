@@ -4,7 +4,6 @@ Tiny 2D geometry library
 ## Domains and points
 ```c++
 #include <iostream>
-
 #include "tinygeom2d/domain.hpp"
 
 using namespace tinygeom2d;
@@ -34,6 +33,68 @@ Output:
 (13, 2) interior: no
 ```
 ![](examples/domain.svg)
+## Shortest paths
+```c++
+#include <iostream>
+#include "tinygeom2d/shortestpath.hpp"
+
+using namespace tinygeom2d;
+
+void showShortestPath(const ShortestPathContext& ctx, Point a, Point b) {
+    // ShortestPathContext::findShortestPath returns pair (path, path length).
+    // If the path is empty, there is no path between given points.
+    std::pair<std::vector<Point>, double> result = ctx.findShortestPath(a, b);
+    
+    if(result.first.empty()) {
+        std::cout << "No path between " << a << " and " << b << "\n";
+    } else {
+        std::cout << "Shortest path between " << a << " and " << b;
+        std::cout << " of length " << result.second << ":\n";
+        for(Point p : result.first) {
+            std::cout << "  " << p << "\n";
+        }
+    }
+    std::cout << "\n";
+}
+
+int main() {
+    Domain domain({
+        {{0, 0}, {10, 0}, {15, 8}, {20, 0}, {30, 0}, {30, 14}, {0, 14}},
+        {{7, 12}, {11, 12}, {9, 3}},
+        {{21, 4}, {24, 4}, {26, 6}, {26, 9}, {24, 11}, {21, 11}, {19, 9}, {19, 6}},
+        {{12, 0}, {15, 5}, {18, 0}}
+    });
+    
+    // Create context for computing shortest paths in domain
+    ShortestPathContext ctx(domain);
+    
+    // Find shortest paths connecting pairs of points
+    showShortestPath(ctx, {5, 5}, {27, 5});
+    showShortestPath(ctx, {3, 8}, {27, 7});
+    showShortestPath(ctx, {14, 1}, {22, 1});
+}
+```
+Output:
+```
+Shortest path between (5, 5) and (27, 5) of length 25.6558:
+  (5, 5)
+  (9, 3)
+  (15, 8)
+  (21, 4)
+  (24, 4)
+  (27, 5)
+
+Shortest path between (3, 8) and (27, 7) of length 27.7598:
+  (3, 8)
+  (7, 12)
+  (11, 12)
+  (24, 11)
+  (26, 9)
+  (27, 7)
+
+No path between (14, 1) and (22, 1)
+```
+![](examples/shortestpath.svg)
 # API reference
 ## geometry.hpp: Geometry primitives
 ```c++

@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "tinygeom2d/domain.hpp"
 // BEGIN NOREADME
 #include "svg.hpp"

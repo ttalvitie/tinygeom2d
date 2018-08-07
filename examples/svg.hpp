@@ -40,7 +40,7 @@ public:
             }
         }
         
-        double adjX = 0.08 * (maxX - minX);
+        double adjX = 0.08 * (maxY - minY);
         double adjY = 0.08 * (maxY - minY);
         minX -= adjX;
         maxX += adjX;
@@ -90,6 +90,14 @@ public:
         ss << "  <text x=\"" << (right ? x + 8 : x - 8) << "\" y=\"" << (up ? y - 5 : y + 15) << "\" style=\"font: normal 16px sans-serif\" fill=\"" << color << "\"" << (right ? "" : " text-anchor=\"end\"") << ">(" << p.x << ", " << p.y << ")</text>\n";
     }
     
+    void drawLine(Point a, Point b, const std::string& color = colors::black) {
+        double x1 = mapX(a);
+        double y1 = mapY(a);
+        double x2 = mapX(b);
+        double y2 = mapY(b);
+        ss << "  <line x1=\"" << x1 << "\" y1=\"" << y1 << "\" x2=\"" << x2 << "\" y2=\"" << y2 << "\" stroke=\"" << color << "\" stroke-width=\"4\" />\n";
+    }
+    
     void save(const std::string& filename) {
         std::ofstream fp;
         fp.exceptions(fp.failbit | fp.badbit);
@@ -99,8 +107,8 @@ public:
     }
     
 private:
-    const double Width = 800;
-    const double Height = 400;
+    static constexpr double Width = 800;
+    static constexpr double Height = 400;
     
     double sx;
     double sy;

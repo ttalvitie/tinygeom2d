@@ -13,6 +13,7 @@ Tiny 2D geometry library
 
 examples = [
     ("domain", "Domains and points"),
+    ("shortestpath", "Shortest paths"),
 ]
 
 for (example, title) in examples:
