@@ -172,7 +172,7 @@ namespace tinygeom2d {
 // the domain.
 // Throws std::domain_error if a or b is not an interior point of domain.
 // Time complexity: O(n), where n = domain boundary size.
-bool isDirectlyVisible(const Domain& domain, Point a, Point b);
+bool isVisible(const Domain& domain, Point a, Point b);
 
 // The visibile vertices and edges of a domain from a center point inside the
 // domain, computed by computePointVisibility.

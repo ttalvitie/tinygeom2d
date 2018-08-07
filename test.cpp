@@ -717,7 +717,7 @@ void test_visibility_hpp() {
                         Point b(x2, y2);
                         bool throws = false;
                         try {
-                            isDirectlyVisible(domain, a, b);
+                            isVisible(domain, a, b);
                         } catch(std::domain_error&) {
                             throws = true;
                         }

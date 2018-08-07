@@ -104,7 +104,7 @@ public:
         }
         
         // Special case: direct visibility
-        if(isDirectlyVisible(domain_, a, b)) {
+        if(isVisible(domain_, a, b)) {
             return {{a, b}, distance(a, b)};
         }
         
