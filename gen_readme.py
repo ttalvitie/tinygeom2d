@@ -34,16 +34,14 @@ for (example, title) in examples:
     output = output.decode("UTF-8")
     output = output.strip()
     
-    print("### Code")
     print("```c++")
     print(code)
     print("```")
-    print("### Output")
+    print("Output:")
     print("```")
     print(output)
     print("```")
-    print("### Figure")
-    print("![{} example figure](examples/{}.svg)".format(example, example))
+    print("![](examples/{}.svg)".format(example))
 
 print("# API reference")
 

@@ -2,7 +2,6 @@
 Tiny 2D geometry library
 # Examples
 ## Domains and points
-### Code
 ```c++
 #include <iostream>
 
@@ -28,14 +27,13 @@ int main() {
     std::cout << c << " interior: " << (domain.isInteriorPoint(c) ? "yes" : "no") << "\n";
 }
 ```
-### Output
+Output:
 ```
 (2, 3) interior: yes
 (7, 4) interior: no
 (13, 2) interior: no
 ```
-### Figure
-![domain example figure](examples/domain.svg)
+![](examples/domain.svg)
 # API reference
 ## geometry.hpp: Geometry primitives
 ```c++
