@@ -286,11 +286,8 @@ inline VertexVisibility computeVertexVisibility(const Domain& domain, Point cent
     VertexVisibility ret;
     ret.center = center;
     
-    std::pair<std::size_t, std::size_t> id = domain.vertexID(center);
-    
-    const std::vector<Point>& centerPoly = domain.boundary()[id.first];
-    Point next = centerPoly[(id.second + 1) % centerPoly.size()];
-    Point prev = centerPoly[(id.second + centerPoly.size() - 1) % centerPoly.size()];
+    Point next = domain.nextVertex(center);
+    Point prev = domain.prevVertex(center);
     
     // We do a rotational ray sweep around the center, maintaining the set of
     // edges intersecting the ray ordered by distance. The ray starts from the

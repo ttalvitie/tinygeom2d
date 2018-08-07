@@ -573,18 +573,18 @@ void test_domain_hpp() {
         TEST(domain.vertexMap() == correct);
     }
     
-    // vertexID works correctly in example domain
+    // vertexIdxPair works correctly in example domain
     {
         Domain domain(exampleBoundary);
         for(int x = -2; x < 12; ++x) {
             for(int y = -2; y < 12; ++y) {
                 Point p(x, y);
                 if(domain.vertexMap().count(p)) {
-                    TEST(domain.vertexID(p) == domain.vertexMap().find(p)->second);
+                    TEST(domain.vertexIdxPair(p) == domain.vertexMap().find(p)->second);
                 } else {
                     bool throws = false;
                     try {
-                        domain.vertexID(p);
+                        domain.vertexIdxPair(p);
                     } catch(std::domain_error&) {
                         throws = true;
                     }
@@ -896,7 +896,7 @@ void test_visibility_hpp() {
                     continue;
                 }
                 
-                std::pair<std::size_t, std::size_t> id = domain.vertexID(center);
+                std::pair<std::size_t, std::size_t> id = domain.vertexIdxPair(center);
                 const std::vector<Point>& poly = domain.boundary()[id.first];
                 Point next = poly[(id.second + 1) % poly.size()];
                 Point prev = poly[(id.second + poly.size() - 1) % poly.size()];

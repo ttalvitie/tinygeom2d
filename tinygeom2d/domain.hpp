@@ -94,10 +94,13 @@ public:
     // Equivalent to vertexMap().find(vertex)->second if the vertex is a vertex
     // of the boundary.
     // Throws std::domain_error if given vertex is not a vertex of the boundary.
-    IdxPair vertexID(Point vertex) const {
+    IdxPair vertexIdxPair(Point vertex) const {
         auto it = vertexMap_.find(vertex);
         if(it == vertexMap_.end()) {
-            throw std::domain_error("tinygeom2d::Domain::vertexID: given vertex is not in the boundary of the domain");
+            throw std::domain_error(
+                "tinygeom2d::Domain::vertexIdxPair: given vertex is not in the "
+                "boundary of the domain"
+            );
         }
         return it->second;
     }
@@ -106,7 +109,7 @@ public:
     // polygon. 
     // Throws std::domain_error if given vertex is not a vertex of the boundary.
     Point nextVertex(Point vertex) const {
-        IdxPair idxs = vertexID(vertex);
+        IdxPair idxs = vertexIdxPair(vertex);
         if(idxs.second == boundary_[idxs.first].size() - 1) {
             return boundary_[idxs.first].front();
         } else {
@@ -118,7 +121,7 @@ public:
     // boundary polygon. 
     // Throws std::domain_error if given vertex is not a vertex of the boundary.
     Point prevVertex(Point vertex) const {
-        IdxPair idxs = vertexID(vertex);
+        IdxPair idxs = vertexIdxPair(vertex);
         if(idxs.second == 0) {
             return boundary_[idxs.first].back();
         } else {

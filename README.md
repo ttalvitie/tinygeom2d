@@ -143,7 +143,7 @@ public:
     // Equivalent to vertexMap().find(vertex)->second if the vertex is a vertex
     // of the boundary.
     // Throws std::domain_error if given vertex is not a vertex of the boundary.
-    IdxPair vertexID(Point vertex) const;
+    IdxPair vertexIdxPair(Point vertex) const;
 
     // Returns the position of the next vertex from given vertex on the boundary
     // polygon. 
