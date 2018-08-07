@@ -12,6 +12,8 @@ trap 'report_error $LINENO' ERR
 
 set -e
 
+cd ..
+
 # Create temporary directory
 TMPDIR=`mktemp -d`
 

@@ -17,7 +17,7 @@ namespace tinygeom2d {
 // the domain.
 // Throws std::domain_error if a or b is not an interior point of domain.
 // Time complexity: O(n), where n = domain boundary size.
-bool isVisible(const Domain& domain, Point a, Point b) {
+inline bool isVisible(const Domain& domain, Point a, Point b) {
     if(!domain.isInteriorPoint(a) || !domain.isInteriorPoint(b)) {
         throw std::domain_error(
             "tinygeom2d::isVisible: One of given points is not an "
