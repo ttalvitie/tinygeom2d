@@ -3,6 +3,7 @@
 import re
 import sys
 import subprocess
+import tempfile
 
 subprocess.check_call(["make"], cwd="examples", stdout=subprocess.DEVNULL)
 
@@ -34,6 +35,17 @@ for (example, title) in examples:
     output = subprocess.check_output(["./" + example], cwd="examples")
     output = output.decode("UTF-8")
     output = output.strip()
+    
+    # Run the code with NOREADME parts removed and compare output to verify
+    # that it still works
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with open(tmpdir + "/code.cpp", "w") as fp:
+            fp.write(code)
+        subprocess.check_call(["g++", tmpdir + "/code.cpp", "-o", tmpdir + "/code", "-std=c++11", "-I."])
+        output_cmp = subprocess.check_output([tmpdir + "/code"])
+        output_cmp = output_cmp.decode("UTF-8")
+        output_cmp = output_cmp.strip()
+        assert output_cmp == output
     
     print("```c++")
     print(code)

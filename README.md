@@ -42,7 +42,7 @@ using namespace tinygeom2d;
 
 void showShortestPath(const ShortestPathContext& ctx, Point a, Point b) {
     // ShortestPathContext::findShortestPath returns pair (path, path length).
-    // If the path is empty, there is no path between given points.
+    // If the returned path is empty, there is no path between given points.
     std::pair<std::vector<Point>, double> result = ctx.findShortestPath(a, b);
     
     if(result.first.empty()) {
