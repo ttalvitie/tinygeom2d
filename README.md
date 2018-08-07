@@ -159,7 +159,6 @@ public:
     // vertices of the domain do not count as interior points.
     // Time complexity: O(n), where n = boundary size.
     bool isInteriorPoint(Point point) const;
-
 };
 
 }
@@ -273,7 +272,6 @@ public:
     // (worst case bound a = O(n^2), very pessimistic in most cases).
     typedef std::pair<std::vector<Point>, double> PathResult;
     PathResult findShortestPath(Point a, Point b) const;
-
 };
 
 }

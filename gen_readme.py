@@ -50,6 +50,7 @@ for (header, title) in headers:
     code = re.sub(r'\s*;', r';', code)
     code = re.sub(r'\)\s*:[^;]*;', r');', code)
     code = re.sub(r'^(\s*)inline ', r'\1', code, flags=re.MULTILINE)
+    code = re.sub(r'^\s*$', r'', code, flags=re.MULTILINE)
     
     pos = -1
     while True:
