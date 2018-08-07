@@ -13,6 +13,29 @@
 
 namespace tinygeom2d {
 
+// Returns true if interior point a is directly visible from interior point b in
+// the domain.
+// Throws std::domain_error if a or b is not an interior point of domain.
+// Time complexity: O(n), where n = domain boundary size.
+bool isDirectlyVisible(const Domain& domain, Point a, Point b) {
+    if(!domain.isInteriorPoint(a) || !domain.isInteriorPoint(b)) {
+        throw std::domain_error(
+            "tinygeom2d::isDirectlyVisible: One of given points is not an "
+            "interior point of the domain"
+        );
+    }
+    for(const std::vector<Point>& poly : domain.boundary()) {
+        Point x = poly.back();
+        for(Point y : poly) {
+            if(intersects(a, b, x, y)) {
+                return false;
+            }
+            x = y;
+        }
+    }
+    return true;
+}
+
 namespace visibility_detail {
 
 typedef std::pair<Point, Point> Edge;

@@ -705,6 +705,29 @@ void test_domain_hpp() {
 }
 
 void test_visibility_hpp() {
+    // isDirectlyVisible throws exactly when domain.isInteriorPoint(x) is false
+    // for x = a or x = b
+    {
+        Domain domain(exampleBoundary);
+        for(int x1 = -2; x1 < 12; ++x1) {
+            for(int y1 = -2; y1 < 12; ++y1) {
+                for(int x2 = -2; x2 < 12; ++x2) {
+                    for(int y2 = -2; y2 < 12; ++y2) {
+                        Point a(x1, y1);
+                        Point b(x2, y2);
+                        bool throws = false;
+                        try {
+                            isDirectlyVisible(domain, a, b);
+                        } catch(std::domain_error&) {
+                            throws = true;
+                        }
+                        TEST(throws == !domain.isInteriorPoint(a) || !domain.isInteriorPoint(b));
+                    }
+                }
+            }
+        }
+    }
+    
     // computePointVisibility throws exactly when domain.isInteriorPoint(center)
     // is false for the example domain
     {

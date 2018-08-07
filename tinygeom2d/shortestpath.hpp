@@ -104,24 +104,7 @@ public:
         }
         
         // Special case: direct visibility
-        bool directVisibility = true;
-        for(const std::vector<Point>& poly : domain_.boundary()) {
-            Point x = poly.back();
-            for(Point y : poly) {
-                if(intersects(a, b, x, y)) {
-                    directVisibility = false;
-                    break;
-                }
-                x = y;
-            }
-            if(!directVisibility) {
-                break;
-            }
-        }
-        if(directVisibility) {
-            if(!domain_.isInteriorPoint(a) || !domain_.isInteriorPoint(b)) {
-                throw std::domain_error(notInteriorMsg);
-            }
+        if(isDirectlyVisible(domain_, a, b)) {
             return {{a, b}, distance(a, b)};
         }
         
