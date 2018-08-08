@@ -9,7 +9,21 @@ subprocess.check_call(["make"], cwd="examples", stdout=subprocess.DEVNULL)
 
 print("""\
 # tinygeom2d
-Tiny 2D geometry library
+tinygeom2d is a tiny C++ library for 2D geometry in polygonal domains. Features:
+* Shortest paths
+* Visibility polygons
+* Header-only library
+* Exact geometry primitives for points with 63-bit integer coordinates
+* Simplicity and robustness achieved through symbolic perturbations
+
+## Why integers?
+Even though floating point arithmetic is more flexible than integer arithmetic, it requires greater care in the implementation of geometric algorithms to account for the imprecision of the computations. For this reason, the library uses integer arithmetic in most places. To use the library with floating-point data, the input has to be transformed into integer data first (see function `normalizationFactor` in `geometry.hpp`).
+
+The use of exact arithmetic also enables the use of symbolic perturbations, which removes the need for handling degenerate cases (such as three points being collinear) by symbolically moving each point an infinitesimally small distance from its original location. For more information about the symbolic perturbation used by the libray, see the comments in `geometry.hpp`.
+
+## Usage
+tinygeom2d is a header-only library, so you can start using it simply by copying the tinygeom2d directory to your project directory (or anywhere in the include path). The library is licensed with the permissive MIT license, so you can use it however you like provided that you retain the copyright notice and license terms in all copies. See the examples and API reference below for instructions on how to use the library.
+
 # Examples""")
 
 examples = [
