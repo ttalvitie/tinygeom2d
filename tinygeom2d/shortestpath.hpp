@@ -139,7 +139,10 @@ public:
             if(!vertData[v].done && dist < vertData[v].dist) {
                 vertData[v].dist = dist;
                 vertData[v].parent = parent;
-                double heuristic = dist + distance(getVertPos_(v), b);
+                double heuristic = dist;
+                if(v != targetIdx) {
+			heuristic += distance(getVertPos_(v), b);
+		}
                 queue.push({heuristic, v});
             }
         };
