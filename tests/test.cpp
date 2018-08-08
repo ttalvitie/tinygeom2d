@@ -345,6 +345,27 @@ void test_geometry_hpp() {
         TEST(x.count(Point(5, 6)));
         TEST(!x.count(Point(6, 5)));
     }
+    
+    // coordsAsDouble results have high enough precision
+    for(int t = 0; t < 100; ++t) {
+        Point p = randomPoint();
+        double x, y;
+        std::tie(x, y) = coordsAsDouble(p);
+        Point q(std::round(x), std::round(y));
+        TEST(std::abs(p.x - q.x) < INT64_C(1000000000000));
+        TEST(std::abs(p.y - q.y) < INT64_C(1000000000000));
+    }
+    for(int t = 0; t < 100; ++t) {
+        int64_t M = (int64_t)1 << 50;
+        Point p(
+            std::uniform_int_distribution<int64_t>(-M, M)(rng),
+            std::uniform_int_distribution<int64_t>(-M, M)(rng)
+        );
+        double x, y;
+        std::tie(x, y) = coordsAsDouble(p);
+        Point q(std::round(x), std::round(y));
+        TEST(p == q);
+    }
 }
 
 void test_intersection_hpp() {

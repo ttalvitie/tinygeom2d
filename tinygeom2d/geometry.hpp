@@ -168,10 +168,16 @@ inline bool angleLT(Point a, Point b, Point c, Point d) {
 }
 
 // Returns Euclidean distance between two points as a double-precision floating
-// point number. Used for shortest path lengths because comparing sums of
+// point number. Used for shortest path lengths because comparing sums of exact
 // Euclidean distances is complicated and expensive.
 inline double distance(Point a, Point b) {
     return std::hypot((double)(b.x - a.x), (double)(b.y - a.y));
+}
+
+// Returns the coordinates of a point converted to double-precision floating
+// point numbers. Used for 
+inline std::pair<double, double> coordsAsDouble(Point p) {
+    return {(double)p.x, (double)p.y};
 }
 
 // Convenience function that returns a safe multiplicative factor for converting

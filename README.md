@@ -151,9 +151,13 @@ bool yCoordLT(Point a, Point b);
 bool angleLT(Point a, Point b, Point c, Point d);
 
 // Returns Euclidean distance between two points as a double-precision floating
-// point number. Used for shortest path lengths because comparing sums of
+// point number. Used for shortest path lengths because comparing sums of exact
 // Euclidean distances is complicated and expensive.
 double distance(Point a, Point b);
+
+// Returns the coordinates of a point converted to double-precision floating
+// point numbers. Used for 
+std::pair<double, double> coordsAsDouble(Point p);
 
 // Convenience function that returns a safe multiplicative factor for converting
 // floating point coordinates to the correct range for Points, if the original
