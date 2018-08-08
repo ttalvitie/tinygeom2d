@@ -341,6 +341,48 @@ struct VertexVisibility {
     // boundary of the domain. There is always one less elements in edges than
     // in verts.
     std::vector<std::pair<Point, Point>> edges;
+    
+    // Computes the visibility polygon as points with double-precision floating
+    // point coordinates. The last point is always center.
+    std::vector<std::pair<double, double>> computePolygon() const {
+        using namespace visibility_detail;
+        
+        std::vector<std::pair<double, double>> ret;
+        
+        for(std::size_t i = 1; i < verts.size(); ++i) {
+            Point va = verts[i - 1];
+            Point vb = verts[i];
+            Point ea = edges[i - 1].first;
+            Point eb = edges[i - 1].second;
+            
+            ret.push_back(coordsAsDouble(va));
+            
+            if(ea != va) {
+                std::pair<double, double> point = intersectionPoint(
+                    coordsAsDouble(ea),
+                    coordsAsDouble(eb),
+                    coordsAsDouble(center),
+                    coordsAsDouble(va)
+                );
+                ret.push_back(point);
+            }
+            
+            if(eb != vb) {
+                std::pair<double, double> point = intersectionPoint(
+                    coordsAsDouble(ea),
+                    coordsAsDouble(eb),
+                    coordsAsDouble(center),
+                    coordsAsDouble(vb)
+                );
+                ret.push_back(point);
+            }
+        }
+        
+        ret.push_back(coordsAsDouble(verts.back()));
+        ret.push_back(coordsAsDouble(center));
+        
+        return ret;
+    }
 };
 
 // Compute the vertices and edges in the domain visible from a given vertex of

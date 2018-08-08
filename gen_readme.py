@@ -12,6 +12,7 @@ print("""\
 tinygeom2d is a tiny C++ library for 2D geometry in polygonal domains. Features:
 * Shortest paths
 * Visibility polygons
+* Visibility graphs
 * Header-only library
 * Exact geometry primitives for points with 63-bit integer coordinates
 * Simplicity and robustness achieved through exact computations and symbolic perturbations
