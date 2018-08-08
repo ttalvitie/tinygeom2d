@@ -10,6 +10,7 @@ subprocess.check_call(["make"], cwd="examples", stdout=subprocess.DEVNULL)
 print("""\
 # tinygeom2d
 tinygeom2d is a tiny C++ library for 2D geometry in polygonal domains. Features:
+
 * Shortest paths
 * Visibility polygons
 * Visibility graphs
@@ -23,7 +24,7 @@ Even though floating point arithmetic is more flexible than integer arithmetic, 
 The use of exact arithmetic also enables the use of symbolic perturbations, which removes the need for handling degenerate cases (such as three points being collinear) by symbolically moving each point an infinitesimally small distance from its original location. For more information about the symbolic perturbation used by the library, see the comments in `geometry.hpp`.
 
 ## Usage
-tinygeom2d is a header-only library, so you can start using it simply by copying the tinygeom2d directory to your project directory (or anywhere in the include path). The library is licensed with the permissive MIT license, so you can use it however you like provided that you retain the copyright notice and license terms in all copies. See the examples and API reference below for instructions on how to use the library.
+tinygeom2d is a header-only library, so you can start using it simply by copying the tinygeom2d directory to your project directory (or anywhere in the include path). C++11 support is required from the compiler. The library is licensed with the permissive MIT license, so you can use it however you like provided that you retain the copyright notice and license terms in all copies. See the examples and API reference below for instructions on how to use the library.
 
 # Examples""")
 
@@ -71,6 +72,7 @@ for (example, title) in examples:
     print(output)
     print("```")
     print("![](examples/{}.svg)".format(example))
+    print()
 
 print("# API reference")
 
@@ -162,3 +164,13 @@ for (header, title) in headers:
     print("```c++")
     print(code)
     print("```")
+    print()
+
+print("""\
+# Credits
+The library was written by Topi Talvitie in 2018, based on earlier code of the following two visualizations written as a research assistant in the computational geometry research group in University of Helsinki supervised by Valentin Polishchuk:
+
+* J. Hershberger, V. Polishchuk, B. Speckmann, T. Talvitie: Geometric kth Shortest Paths: the Applet, SoCG 2014 videos [[paper and visualization](http://www.computational-geometry.org/SoCG-videos/socg14video/ksp/index.html)]
+* T. Talvitie: Visualizing Quickest Visibility Maps, SoCG 2015 videos [[paper](http://drops.dagstuhl.de/opus/volltexte/2015/5090/)] [[visualization](https://www.cs.helsinki.fi/group/compgeom/qvm/)]
+
+Support for kth shortest paths and quickest visibility paths may be added to the library in the future.""")

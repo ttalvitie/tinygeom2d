@@ -1,5 +1,6 @@
 # tinygeom2d
 tinygeom2d is a tiny C++ library for 2D geometry in polygonal domains. Features:
+
 * Shortest paths
 * Visibility polygons
 * Visibility graphs
@@ -13,7 +14,7 @@ Even though floating point arithmetic is more flexible than integer arithmetic, 
 The use of exact arithmetic also enables the use of symbolic perturbations, which removes the need for handling degenerate cases (such as three points being collinear) by symbolically moving each point an infinitesimally small distance from its original location. For more information about the symbolic perturbation used by the library, see the comments in `geometry.hpp`.
 
 ## Usage
-tinygeom2d is a header-only library, so you can start using it simply by copying the tinygeom2d directory to your project directory (or anywhere in the include path). The library is licensed with the permissive MIT license, so you can use it however you like provided that you retain the copyright notice and license terms in all copies. See the examples and API reference below for instructions on how to use the library.
+tinygeom2d is a header-only library, so you can start using it simply by copying the tinygeom2d directory to your project directory (or anywhere in the include path). C++11 support is required from the compiler. The library is licensed with the permissive MIT license, so you can use it however you like provided that you retain the copyright notice and license terms in all copies. See the examples and API reference below for instructions on how to use the library.
 
 # Examples
 ## Domains and points
@@ -48,6 +49,7 @@ Output:
 (13, 2) interior: no
 ```
 ![](examples/domain.svg)
+
 ## Visibility
 ```c++
 #include <iostream>
@@ -124,6 +126,7 @@ Visibility polygon of (5, 5):
   (18, 5)
 ```
 ![](examples/visibility.svg)
+
 ## Shortest paths
 ```c++
 #include <iostream>
@@ -186,6 +189,7 @@ Shortest path between (3, 8) and (27, 7) of length 27.7598:
 No path between (14, 1) and (22, 1)
 ```
 ![](examples/shortestpath.svg)
+
 # API reference
 ## geometry.hpp: Geometry primitives
 ```c++
@@ -275,6 +279,7 @@ struct hash<tinygeom2d::Point> {
 };
 }
 ```
+
 ## intersection.hpp: Intersection detection
 ```c++
 namespace tinygeom2d {
@@ -291,6 +296,7 @@ bool intersects(std::vector<std::pair<Point, Point>> segments);
 
 }
 ```
+
 ## domain.hpp: Polygonal domains
 ```c++
 namespace tinygeom2d {
@@ -352,6 +358,7 @@ public:
 
 }
 ```
+
 ## visibility.hpp: Visibility computations
 ```c++
 namespace tinygeom2d {
@@ -437,6 +444,7 @@ std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& domain)
 
 }
 ```
+
 ## shortestpath.hpp: Shortest path computations
 ```c++
 namespace tinygeom2d {
@@ -473,6 +481,7 @@ public:
 
 }
 ```
+
 ## int64.hpp: Portable 64-bit integer multiplication comparison
 ```c++
 namespace tinygeom2d {
@@ -486,3 +495,11 @@ int cmpMul64(int64_t a, int64_t b, int64_t c, int64_t d);
 
 }
 ```
+
+# Credits
+The library was written by Topi Talvitie in 2018, based on earlier code of the following two visualizations written as a research assistant in the computational geometry research group in University of Helsinki supervised by Valentin Polishchuk:
+
+* J. Hershberger, V. Polishchuk, B. Speckmann, T. Talvitie: Geometric kth Shortest Paths: the Applet, SoCG 2014 videos [[paper and visualization](http://www.computational-geometry.org/SoCG-videos/socg14video/ksp/index.html)]
+* T. Talvitie: Visualizing Quickest Visibility Maps, SoCG 2015 videos [[paper](http://drops.dagstuhl.de/opus/volltexte/2015/5090/)] [[visualization](https://www.cs.helsinki.fi/group/compgeom/qvm/)]
+
+Support for kth shortest paths and quickest visibility paths may be added to the library in the future.
