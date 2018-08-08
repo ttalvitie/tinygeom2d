@@ -120,7 +120,7 @@ inline bool anglesOrdered(Point center, Point a, Point b, Point c) {
 
 // Compute intersection point between segment (seg1, seg2) and line
 // (line1, line2)
-std::pair<double, double> intersectionPoint(
+inline std::pair<double, double> intersectionPoint(
     std::pair<double, double> seg1,
     std::pair<double, double> seg2,
     std::pair<double, double> line1,
