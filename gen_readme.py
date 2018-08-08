@@ -14,7 +14,7 @@ tinygeom2d is a tiny C++ library for 2D geometry in polygonal domains. Features:
 * Visibility polygons
 * Header-only library
 * Exact geometry primitives for points with 63-bit integer coordinates
-* Simplicity and robustness achieved through symbolic perturbations
+* Simplicity and robustness achieved through exact computations and symbolic perturbations
 
 ## Why integers?
 Even though floating point arithmetic is more flexible than integer arithmetic, it requires greater care in the implementation of geometric algorithms to account for the imprecision of the computations. For this reason, the library uses integer arithmetic in most places. To use the library with floating-point data, the input has to be transformed into integer data first (see function `normalizationFactor` in `geometry.hpp`). This should not greatly reduce the precision of the data, because the precision of coordinates in tinygeom2d is greater than the 53-bit precision of double-precision floating-point numbers (points in polygonal domains are typically distributed uniformly, unlike floating-point numbers that are denser close to zero). Alternative libraries [VisiLibity1](https://karlobermeyer.github.io/VisiLibity1/) and [CGAL](https://www.cgal.org/) can use floating-point data directly.
