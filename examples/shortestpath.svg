@@ -1,40 +1,40 @@
 <svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
   <rect x="0" y="0" width="800" height="400" fill="gainsboro" />
   <path d="M 30.5419 372.414 L 276.847 372.414 L 400 175.369 L 523.153 372.414 L 769.458 372.414 L 769.458 27.5862 L 30.5419 27.5862 Z M 202.956 76.8473 L 301.478 76.8473 L 252.217 298.522 Z M 498.522 224.631 L 498.522 150.739 L 547.783 101.478 L 621.675 101.478 L 670.936 150.739 L 670.936 224.631 L 621.675 273.892 L 547.783 273.892 Z M 473.892 372.414 L 400 249.261 L 326.108 372.414 Z " fill="white" stroke="black" stroke-width="3" />
-  <circle cx="153.695" cy="249.261" r="7" fill="royalblue" />
-  <text x="161.695" y="244.261" style="font: normal 16px sans-serif" fill="royalblue">(5, 5)</text>
-  <circle cx="252.217" cy="298.522" r="7" fill="royalblue" />
-  <text x="260.217" y="313.522" style="font: normal 16px sans-serif" fill="royalblue">(9, 3)</text>
-  <line x1="153.695" y1="249.261" x2="252.217" y2="298.522" stroke="royalblue" stroke-width="4" />
-  <circle cx="400" cy="175.369" r="7" fill="royalblue" />
-  <text x="408" y="170.369" style="font: normal 16px sans-serif" fill="royalblue">(15, 8)</text>
-  <line x1="252.217" y1="298.522" x2="400" y2="175.369" stroke="royalblue" stroke-width="4" />
-  <circle cx="547.783" cy="273.892" r="7" fill="royalblue" />
-  <text x="539.783" y="288.892" style="font: normal 16px sans-serif" fill="royalblue" text-anchor="end">(21, 4)</text>
-  <line x1="400" y1="175.369" x2="547.783" y2="273.892" stroke="royalblue" stroke-width="4" />
-  <circle cx="621.675" cy="273.892" r="7" fill="royalblue" />
-  <text x="629.675" y="288.892" style="font: normal 16px sans-serif" fill="royalblue">(24, 4)</text>
-  <line x1="547.783" y1="273.892" x2="621.675" y2="273.892" stroke="royalblue" stroke-width="4" />
-  <circle cx="695.567" cy="249.261" r="7" fill="royalblue" />
-  <text x="703.567" y="244.261" style="font: normal 16px sans-serif" fill="royalblue">(27, 5)</text>
-  <line x1="621.675" y1="273.892" x2="695.567" y2="249.261" stroke="royalblue" stroke-width="4" />
-  <circle cx="104.433" cy="175.369" r="7" fill="royalblue" />
-  <text x="96.4335" y="170.369" style="font: normal 16px sans-serif" fill="royalblue" text-anchor="end">(3, 8)</text>
-  <circle cx="202.956" cy="76.8473" r="7" fill="royalblue" />
-  <text x="194.956" y="71.8473" style="font: normal 16px sans-serif" fill="royalblue" text-anchor="end">(7, 12)</text>
-  <line x1="104.433" y1="175.369" x2="202.956" y2="76.8473" stroke="royalblue" stroke-width="4" />
-  <circle cx="301.478" cy="76.8473" r="7" fill="royalblue" />
-  <text x="309.478" y="71.8473" style="font: normal 16px sans-serif" fill="royalblue">(11, 12)</text>
-  <line x1="202.956" y1="76.8473" x2="301.478" y2="76.8473" stroke="royalblue" stroke-width="4" />
-  <circle cx="621.675" cy="101.478" r="7" fill="royalblue" />
-  <text x="629.675" y="96.4778" style="font: normal 16px sans-serif" fill="royalblue">(24, 11)</text>
-  <line x1="301.478" y1="76.8473" x2="621.675" y2="101.478" stroke="royalblue" stroke-width="4" />
-  <circle cx="670.936" cy="150.739" r="7" fill="royalblue" />
-  <text x="678.936" y="145.739" style="font: normal 16px sans-serif" fill="royalblue">(26, 9)</text>
-  <line x1="621.675" y1="101.478" x2="670.936" y2="150.739" stroke="royalblue" stroke-width="4" />
-  <circle cx="695.567" cy="200" r="7" fill="royalblue" />
-  <text x="703.567" y="195" style="font: normal 16px sans-serif" fill="royalblue">(27, 7)</text>
-  <line x1="670.936" y1="150.739" x2="695.567" y2="200" stroke="royalblue" stroke-width="4" />
+  <circle cx="153.695" cy="249.261" r="7" fill="mediumblue" />
+  <text x="161.695" y="244.261" style="font: normal 16px sans-serif" fill="mediumblue">(5, 5)</text>
+  <circle cx="252.217" cy="298.522" r="7" fill="mediumblue" />
+  <text x="260.217" y="313.522" style="font: normal 16px sans-serif" fill="mediumblue">(9, 3)</text>
+  <line x1="153.695" y1="249.261" x2="252.217" y2="298.522" stroke="mediumblue" stroke-width="4" />
+  <circle cx="400" cy="175.369" r="7" fill="mediumblue" />
+  <text x="408" y="170.369" style="font: normal 16px sans-serif" fill="mediumblue">(15, 8)</text>
+  <line x1="252.217" y1="298.522" x2="400" y2="175.369" stroke="mediumblue" stroke-width="4" />
+  <circle cx="547.783" cy="273.892" r="7" fill="mediumblue" />
+  <text x="539.783" y="288.892" style="font: normal 16px sans-serif" fill="mediumblue" text-anchor="end">(21, 4)</text>
+  <line x1="400" y1="175.369" x2="547.783" y2="273.892" stroke="mediumblue" stroke-width="4" />
+  <circle cx="621.675" cy="273.892" r="7" fill="mediumblue" />
+  <text x="629.675" y="288.892" style="font: normal 16px sans-serif" fill="mediumblue">(24, 4)</text>
+  <line x1="547.783" y1="273.892" x2="621.675" y2="273.892" stroke="mediumblue" stroke-width="4" />
+  <circle cx="695.567" cy="249.261" r="7" fill="mediumblue" />
+  <text x="703.567" y="244.261" style="font: normal 16px sans-serif" fill="mediumblue">(27, 5)</text>
+  <line x1="621.675" y1="273.892" x2="695.567" y2="249.261" stroke="mediumblue" stroke-width="4" />
+  <circle cx="104.433" cy="175.369" r="7" fill="mediumblue" />
+  <text x="96.4335" y="170.369" style="font: normal 16px sans-serif" fill="mediumblue" text-anchor="end">(3, 8)</text>
+  <circle cx="202.956" cy="76.8473" r="7" fill="mediumblue" />
+  <text x="194.956" y="71.8473" style="font: normal 16px sans-serif" fill="mediumblue" text-anchor="end">(7, 12)</text>
+  <line x1="104.433" y1="175.369" x2="202.956" y2="76.8473" stroke="mediumblue" stroke-width="4" />
+  <circle cx="301.478" cy="76.8473" r="7" fill="mediumblue" />
+  <text x="309.478" y="71.8473" style="font: normal 16px sans-serif" fill="mediumblue">(11, 12)</text>
+  <line x1="202.956" y1="76.8473" x2="301.478" y2="76.8473" stroke="mediumblue" stroke-width="4" />
+  <circle cx="621.675" cy="101.478" r="7" fill="mediumblue" />
+  <text x="629.675" y="96.4778" style="font: normal 16px sans-serif" fill="mediumblue">(24, 11)</text>
+  <line x1="301.478" y1="76.8473" x2="621.675" y2="101.478" stroke="mediumblue" stroke-width="4" />
+  <circle cx="670.936" cy="150.739" r="7" fill="mediumblue" />
+  <text x="678.936" y="145.739" style="font: normal 16px sans-serif" fill="mediumblue">(26, 9)</text>
+  <line x1="621.675" y1="101.478" x2="670.936" y2="150.739" stroke="mediumblue" stroke-width="4" />
+  <circle cx="695.567" cy="200" r="7" fill="mediumblue" />
+  <text x="703.567" y="195" style="font: normal 16px sans-serif" fill="mediumblue">(27, 7)</text>
+  <line x1="670.936" y1="150.739" x2="695.567" y2="200" stroke="mediumblue" stroke-width="4" />
   <circle cx="375.369" cy="347.783" r="7" fill="firebrick" />
   <text x="383.369" y="342.783" style="font: normal 16px sans-serif" fill="firebrick">(14, 1)</text>
   <circle cx="572.414" cy="347.783" r="7" fill="firebrick" />

@@ -1,8 +1,8 @@
 <svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
   <rect x="0" y="0" width="800" height="400" fill="gainsboro" />
   <path d="M 104.433 372.414 L 350.739 273.892 L 547.783 323.153 L 744.828 224.631 L 695.567 76.8473 L 400 27.5862 L 55.1724 76.8473 Z M 400 76.8473 L 547.783 224.631 L 350.739 224.631 Z " fill="white" stroke="black" stroke-width="3" />
-  <circle cx="153.695" cy="224.631" r="7" fill="royalblue" />
-  <text x="161.695" y="219.631" style="font: normal 16px sans-serif" fill="royalblue">(2, 3)</text>
+  <circle cx="153.695" cy="224.631" r="7" fill="mediumblue" />
+  <text x="161.695" y="219.631" style="font: normal 16px sans-serif" fill="mediumblue">(2, 3)</text>
   <circle cx="400" cy="175.369" r="7" fill="firebrick" />
   <text x="408" y="170.369" style="font: normal 16px sans-serif" fill="firebrick">(7, 4)</text>
   <circle cx="695.567" cy="273.892" r="7" fill="firebrick" />

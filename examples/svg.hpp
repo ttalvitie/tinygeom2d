@@ -14,7 +14,7 @@ namespace colors {
     const std::string white = "white";
     const std::string lightgray = "gainsboro";
     const std::string red = "firebrick";
-    const std::string blue = "royalblue";
+    const std::string blue = "mediumblue";
 }
 
 class SVG {
