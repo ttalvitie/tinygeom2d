@@ -33,6 +33,82 @@ Output:
 (13, 2) interior: no
 ```
 ![](examples/domain.svg)
+## Visibility
+```c++
+#include <iostream>
+#include "tinygeom2d/visibility.hpp"
+
+using namespace tinygeom2d;
+
+int main() {
+    Domain domain({
+        {{0, 5}, {10, 0}, {14, 4}, {19, 0}, {29, 5}, {25, 8}, {30, 12}, {2, 14}},
+        {{10, 5}, {13, 6}, {11, 7}},
+        {{6, 9}, {8, 8}, {9, 10}, {7, 12}},
+        {{16, 7}, {21, 2}, {16, 11}},
+    });
+    
+    // Test visibility of pairs of points
+    Point a = {21, 5};
+    Point b = {23, 10};
+    Point c = {25, 5};
+    Point d = {27, 11};
+    
+    std::cout << a << " sees " << b << ": " << (isVisible(domain, a, b) ? "yes" : "no") << "\n";
+    std::cout << c << " sees " << d << ": " << (isVisible(domain, c, d) ? "yes" : "no") << "\n";
+    std::cout << "\n";
+    
+    // Compute the visibility of a point
+    Point p = {5, 5};
+    PointVisibility vis = computePointVisibility(domain, p);
+    
+    std::cout << "Visible vertices from " << p << ":\n";
+    for(Point v : vis.verts) {
+        std::cout << "  " << v << "\n";
+    }
+    std::cout << "\n";
+    
+    std::cout << "Visibility polygon of " << p << ":\n";
+    for(std::pair<double, double> v : vis.computePolygon()) {
+        std::cout << "  (" << v.first << ", " << v.second << ")\n";
+    }
+    
+}
+```
+Output:
+```
+(21, 5) sees (23, 10): yes
+(25, 5) sees (27, 11): no
+
+Visible vertices from (5, 5):
+  (11, 7)
+  (16, 11)
+  (8, 8)
+  (6, 9)
+  (2, 14)
+  (0, 5)
+  (10, 0)
+  (14, 4)
+  (10, 5)
+
+Visibility polygon of (5, 5):
+  (10, 5)
+  (11, 7)
+  (16, 8.66667)
+  (16, 11)
+  (19.2421, 12.7684)
+  (13.2, 13.2)
+  (8, 8)
+  (6, 9)
+  (7.15789, 13.6316)
+  (2, 14)
+  (0, 5)
+  (10, 0)
+  (14, 4)
+  (19.625, 3.375)
+  (18, 5)
+```
+![](examples/visibility.svg)
 ## Shortest paths
 ```c++
 #include <iostream>
@@ -290,6 +366,10 @@ struct PointVisibility {
     // and verts()[i + 1]. Each edge (a, b) is ordered such that (center, a, b)
     // is CCW oriented, and a appears before b in the boundary of the domain.
     std::vector<std::pair<Point, Point>> edges;
+
+    // Computes the visibility polygon as points with double-precision floating
+    // point coordinates.
+    std::vector<std::pair<double, double>> computePolygon() const;
 };
 
 // Compute the visible vertices and edges in the domain from given center point

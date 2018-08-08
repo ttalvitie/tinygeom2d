@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <limits>
 #include <sstream>
@@ -78,16 +79,26 @@ public:
         ss << "\" fill=\"" << colors::white << "\" stroke=\"black\" stroke-width=\"3\" />\n";
     }
     
+    void drawDoublePointWithCoords(
+        double px,
+        double py,
+        const std::string& color = colors::black,
+        bool right = true,
+        bool up = true
+    ) {
+        double x = mapX(px);
+        double y = mapY(py);
+        ss << "  <circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"7\" fill=\"" << color << "\" />\n";
+        ss << "  <text x=\"" << (right ? x + 8 : x - 8) << "\" y=\"" << (up ? y - 5 : y + 15) << "\" style=\"font: normal 16px sans-serif\" fill=\"" << color << "\"" << (right ? "" : " text-anchor=\"end\"") << ">(" << coordToString(px) << ", " << coordToString(py) << ")</text>\n";
+    }
     void drawPointWithCoords(
         Point p,
         const std::string& color = colors::black,
         bool right = true,
         bool up = true
     ) {
-        double x = mapX(p);
-        double y = mapY(p);
-        ss << "  <circle cx=\"" << x << "\" cy=\"" << y << "\" r=\"7\" fill=\"" << color << "\" />\n";
-        ss << "  <text x=\"" << (right ? x + 8 : x - 8) << "\" y=\"" << (up ? y - 5 : y + 15) << "\" style=\"font: normal 16px sans-serif\" fill=\"" << color << "\"" << (right ? "" : " text-anchor=\"end\"") << ">(" << p.x << ", " << p.y << ")</text>\n";
+        std::pair<double, double> c = coordsAsDouble(p);
+        drawDoublePointWithCoords(c.first, c.second, color, right, up);
     }
     
     void drawLine(Point a, Point b, const std::string& color = colors::black) {
@@ -96,6 +107,21 @@ public:
         double x2 = mapX(b);
         double y2 = mapY(b);
         ss << "  <line x1=\"" << x1 << "\" y1=\"" << y1 << "\" x2=\"" << x2 << "\" y2=\"" << y2 << "\" stroke=\"" << color << "\" stroke-width=\"4\" />\n";
+    }
+    void drawDoublePolygon(
+        std::vector<std::pair<double, double>> poly,
+        const std::string& color = colors::black,
+        double opacity = 1.0
+    ) {
+        ss << "  <path d=\"";
+        bool first = true;
+        for(std::pair<double, double> p : poly) {
+            ss << (first ? 'M' : 'L') << ' ';
+            first = false;
+            ss << mapX(p.first) << ' ' << mapY(p.second) << ' ';
+        }
+        ss << "Z ";
+        ss << "\" fill=\"" << color << "\" opacity=\"" << opacity << "\" />\n";
     }
     
     void save(const std::string& filename) {
@@ -117,10 +143,27 @@ private:
     
     std::stringstream ss;
     
+    double mapX(double x) {
+        return dx * (x - sx);
+    }
+    double mapY(double y) {
+        return Height - dy * (y - sy);
+    }
     double mapX(Point p) {
-        return dx * ((double)p.x - sx);
+        return mapX(p.x);
     }
     double mapY(Point p) {
-        return Height - dy * ((double)p.y - sy);
+        return mapY(p.y);
+    }
+    
+    std::string coordToString(double c) {
+        std::stringstream ret;
+        int ci = (int)std::round(10.0 * c);
+        if(ci % 10 == 0) {
+            ret << ci / 10;
+        } else {
+            ret << ci / 10 << "." << ci % 10;
+        }
+        return ret.str();
     }
 };

@@ -14,6 +14,7 @@ Tiny 2D geometry library
 
 examples = [
     ("domain", "Domains and points"),
+    ("visibility", "Visibility"),
     ("shortestpath", "Shortest paths"),
 ]
 

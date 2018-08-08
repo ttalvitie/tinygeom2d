@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <set>
 #include <stdexcept>
@@ -117,6 +118,30 @@ inline bool anglesOrdered(Point center, Point a, Point b, Point c) {
     }
 }
 
+// Compute intersection point between segment (seg1, seg2) and line
+// (line1, line2)
+std::pair<double, double> intersectionPoint(
+    std::pair<double, double> seg1,
+    std::pair<double, double> seg2,
+    std::pair<double, double> line1,
+    std::pair<double, double> line2
+) {
+    double a, A, b, B, c, C, d, D;
+    std::tie(a, A) = seg1;
+    std::tie(b, B) = seg2;
+    std::tie(c, C) = line1;
+    std::tie(d, D) = line2;
+    double num = a * (C - D) + A * (d - c) + c * D - C * d;
+    double den = (a - b) * (C - D) + (A - B) * (d - c);
+    double t = num / den;
+    if(!std::isfinite(t)) {
+        t = 0.5;
+    }
+    t = std::max(t, 0.0);
+    t = std::min(t, 1.0);
+    return {a + t * (b - a), A + t * (B - A)};
+}
+
 }
 
 // The visibile vertices and edges of a domain from a center point inside the
@@ -138,6 +163,48 @@ struct PointVisibility {
     // and verts()[i + 1]. Each edge (a, b) is ordered such that (center, a, b)
     // is CCW oriented, and a appears before b in the boundary of the domain.
     std::vector<std::pair<Point, Point>> edges;
+    
+    // Computes the visibility polygon as points with double-precision floating
+    // point coordinates.
+    std::vector<std::pair<double, double>> computePolygon() const {
+        using namespace visibility_detail;
+        
+        std::vector<std::pair<double, double>> ret;
+        
+        std::size_t a = verts.size() - 1;
+        for(std::size_t b = 0; b < verts.size(); ++b) {
+            Point va = verts[a];
+            Point vb = verts[b];
+            Point ea = edges[a].first;
+            Point eb = edges[a].second;
+            
+            ret.push_back(coordsAsDouble(va));
+            
+            if(ea != va) {
+                std::pair<double, double> point = intersectionPoint(
+                    coordsAsDouble(ea),
+                    coordsAsDouble(eb),
+                    coordsAsDouble(center),
+                    coordsAsDouble(va)
+                );
+                ret.push_back(point);
+            }
+            
+            if(eb != vb) {
+                std::pair<double, double> point = intersectionPoint(
+                    coordsAsDouble(ea),
+                    coordsAsDouble(eb),
+                    coordsAsDouble(center),
+                    coordsAsDouble(vb)
+                );
+                ret.push_back(point);
+            }
+            
+            a = b;
+        }
+        
+        return ret;
+    }
 };
 
 // Compute the visible vertices and edges in the domain from given center point
