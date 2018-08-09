@@ -542,11 +542,7 @@ inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& 
         struct Event {
             // Events at same position are processed in the enum order
             enum {DelEdge, Vertex, AddEdge} type;
-            
-            union {
-                std::size_t vertIdx;
-                std::size_t edge;
-            };
+            std::size_t elem;
         };
         std::vector<Event> events;
         for(std::size_t edge = 0; edge < vertCount; ++edge) {
@@ -570,9 +566,9 @@ inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& 
         
         auto eventPos = [&](Event e) {
             switch(e.type) {
-                case Event::Vertex: return vertPos[e.vertIdx];
-                case Event::AddEdge: return vertPos[prevVertIdx[e.edge]];
-                case Event::DelEdge: return vertPos[e.edge];
+                case Event::Vertex: return vertPos[e.elem];
+                case Event::AddEdge: return vertPos[prevVertIdx[e.elem]];
+                case Event::DelEdge: return vertPos[e.elem];
                 default: return Point(); // Never happens
             }
         };
@@ -606,17 +602,17 @@ inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& 
         for(Event event : events) {
             switch(event.type) {
                 case Event::AddEdge: {
-                    sweepline.insert(event.edge);
+                    sweepline.insert(event.elem);
                 } break;
                 
                 case Event::DelEdge: {
-                    sweepline.erase(event.edge);
+                    sweepline.erase(event.elem);
                 } break;
                 
                 case Event::Vertex: {
-                    auto it = sweepline.lower_bound(event.vertIdx);
+                    auto it = sweepline.lower_bound(event.elem);
                     if(it != sweepline.end()) {
-                        currentEdge[event.vertIdx] = *it;
+                        currentEdge[event.elem] = *it;
                     }
                 } break;
             };
