@@ -533,7 +533,7 @@ inline std::vector<VertexVisibility> computeAllVertexVisibilities(const Domain& 
     
     // The current hit edge for each ray. The edge i means edge between vertices
     // prevVertIdx[i] and i.
-    const std::size_t NoIdx = -1;
+    const std::size_t NoIdx = (std::size_t)-1;
     std::vector<std::size_t> currentEdge(vertCount, NoIdx);
     
     // All rays initially point to angle zero, and we use a sweepline algorithm

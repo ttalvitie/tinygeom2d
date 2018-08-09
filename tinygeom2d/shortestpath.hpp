@@ -119,7 +119,7 @@ public:
             bool targetVisible;
         };
         
-        const std::size_t NoIdx = -1;
+        const std::size_t NoIdx = (std::size_t)-1;
         const std::size_t targetIdx = 2 * vertCount_;
         std::vector<VertData> vertData(
             2 * vertCount_ + 1,
