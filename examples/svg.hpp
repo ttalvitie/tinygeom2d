@@ -150,10 +150,10 @@ private:
         return Height - dy * (y - sy);
     }
     double mapX(Point p) {
-        return mapX(p.x);
+        return mapX((double)p.x);
     }
     double mapY(Point p) {
-        return mapY(p.y);
+        return mapY((double)p.y);
     }
     
     std::string coordToString(double c) {

@@ -318,7 +318,7 @@ void test_geometry_hpp() {
         for(int t2 = 0; t2 < 50; ++t2) {
             double x = std::uniform_real_distribution<double>(minX, maxX)(rng);
             double y = std::uniform_real_distribution<double>(minY, maxY)(rng);
-            Point point(std::round(x * factor), std::round(y * factor));
+            Point point((int64_t)std::round(x * factor), (int64_t)std::round(y * factor));
         }
     }
     
@@ -351,7 +351,7 @@ void test_geometry_hpp() {
         Point p = randomPoint();
         double x, y;
         std::tie(x, y) = coordsAsDouble(p);
-        Point q(std::round(x), std::round(y));
+        Point q((int64_t)std::round(x), (int64_t)std::round(y));
         TEST(std::abs(p.x - q.x) < INT64_C(1000000000000));
         TEST(std::abs(p.y - q.y) < INT64_C(1000000000000));
     }
@@ -363,7 +363,7 @@ void test_geometry_hpp() {
         );
         double x, y;
         std::tie(x, y) = coordsAsDouble(p);
-        Point q(std::round(x), std::round(y));
+        Point q((int64_t)std::round(x), (int64_t)std::round(y));
         TEST(p == q);
     }
 }
@@ -867,7 +867,7 @@ void test_visibility_hpp() {
                 } catch(std::domain_error&) {
                     throws = true;
                 }
-                TEST(domain.vertexMap().count(center) != throws);
+                TEST((bool)domain.vertexMap().count(center) != throws);
             }
         }
     }
